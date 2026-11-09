@@ -182,16 +182,25 @@ Future<void> main(List<String> args) async {
     var license = 'BSD-3-Clause';
     if (!sdk) {
       final dir = Directory.fromUri(Uri.parse(roots[name]!));
-      final file = dir
-          .listSync()
-          .whereType<File>()
-          .where(
-            (f) => RegExp(
-              r'^(LICENSE|LICENCE|COPYING)',
-              caseSensitive: false,
-            ).hasMatch(f.uri.pathSegments.last),
-          )
-          .firstOrNull;
+      // Sortiert, weil die Reihenfolge von listSync je nach System verschieden ist
+      // (archive hat LICENSE und LICENSE-other.md).
+      final file =
+          (dir
+                  .listSync()
+                  .whereType<File>()
+                  .where(
+                    (f) => RegExp(
+                      r'^(LICENSE|LICENCE|COPYING)',
+                      caseSensitive: false,
+                    ).hasMatch(f.uri.pathSegments.last),
+                  )
+                  .toList()
+                ..sort(
+                  (a, b) => a.uri.pathSegments.last.compareTo(
+                    b.uri.pathSegments.last,
+                  ),
+                ))
+              .firstOrNull;
       license = file == null
           ? 'unbekannt'
           : classifyLicense(file.readAsStringSync());
@@ -218,6 +227,17 @@ Future<void> main(List<String> args) async {
       stderr.writeln(
         '$outputPath ist veraltet: dart run tool/third_party_notices.dart',
       );
+      // Erste abweichende Zeile zeigen, damit ein Unterschied in der CI lesbar ist.
+      final a = current.split('\n');
+      final b = text.split('\n');
+      for (var i = 0; i < a.length || i < b.length; i++) {
+        final x = i < a.length ? a[i] : '';
+        final y = i < b.length ? b[i] : '';
+        if (x != y) {
+          stderr.writeln('Zeile ${i + 1}\n  Datei:  $x\n  erwartet: $y');
+          break;
+        }
+      }
       exitCode = 1;
     }
   } else {
