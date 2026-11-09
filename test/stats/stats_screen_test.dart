@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -160,7 +162,7 @@ void main() {
       find.byType(TripScreen),
       matchesGoldenFile('goldens/stats_trip.png'),
     );
-  });
+  }, skip: _goldenSkip);
 
   testWidgets('alle löschen und Aufzeichnung abschalten', (tester) async {
     await pump(tester, const StatsScreen(), height: 5200);
@@ -192,7 +194,7 @@ void main() {
       find.byType(StatsScreen),
       matchesGoldenFile('goldens/stats_overview.png'),
     );
-  });
+  }, skip: _goldenSkip);
 
   test('nachgestellte Fahrt hat alle Teile', () {
     final f = simulated('x', now, 50).figures;
@@ -203,3 +205,7 @@ void main() {
     expect(f.gentleShare, greaterThan(0));
   });
 }
+
+/// Die Vergleichsbilder sind unter Windows erzeugt; Linux und macOS zeichnen Schrift und Kanten
+/// minimal anders. Dort (z. B. in der CI) laufen die Golden-Tests deshalb nicht.
+final bool _goldenSkip = !Platform.isWindows;
