@@ -1,0 +1,1204 @@
+{
+ "version": 0.6,
+ "generator": "Overpass API 0.7.62.11 (Ausschnitt convert, aufgezeichnet 2026-10-30)",
+ "elements": [
+  {
+   "type": "item",
+   "id": 4067932,
+   "geometry": {
+    "type": "LineString",
+    "coordinates": [
+     [
+      13.402628,
+      52.5189411
+     ],
+     [
+      13.4019566,
+      52.5186802
+     ]
+    ]
+   },
+   "tags": {
+    "highway": "primary",
+    "maxspeed": "50",
+    "maxspeed:forward": "",
+    "maxspeed:backward": "",
+    "oneway": "yes",
+    "junction": ""
+   }
+  },
+  {
+   "type": "item",
+   "id": 4068003,
+   "geometry": {
+    "type": "LineString",
+    "coordinates": [
+     [
+      13.43953,
+      52.5477548
+     ],
+     [
+      13.4394773,
+      52.5476999
+     ],
+     [
+      13.4394333,
+      52.5476541
+     ],
+     [
+      13.4393067,
+      52.5475223
+     ],
+     [
+      13.4392196,
+      52.5474317
+     ],
+     [
+      13.4391511,
+      52.5473603
+     ]
+    ]
+   },
+   "tags": {
+    "highway": "tertiary",
+    "maxspeed": "50",
+    "maxspeed:forward": "",
+    "maxspeed:backward": "",
+    "oneway": "",
+    "junction": ""
+   }
+  },
+  {
+   "type": "item",
+   "id": 4484427,
+   "geometry": {
+    "type": "LineString",
+    "coordinates": [
+     [
+      13.4159447,
+      52.5270469
+     ],
+     [
+      13.416123,
+      52.5272394
+     ],
+     [
+      13.4161428,
+      52.5272637
+     ],
+     [
+      13.416227,
+      52.5273661
+     ],
+     [
+      13.4162934,
+      52.5274461
+     ]
+    ]
+   },
+   "tags": {
+    "highway": "primary",
+    "maxspeed": "50",
+    "maxspeed:forward": "",
+    "maxspeed:backward": "",
+    "oneway": "yes",
+    "junction": ""
+   }
+  },
+  {
+   "type": "item",
+   "id": 4610362,
+   "geometry": {
+    "type": "LineString",
+    "coordinates": [
+     [
+      13.3984985,
+      52.5234645
+     ],
+     [
+      13.398599,
+      52.5234203
+     ],
+     [
+      13.3987135,
+      52.5233684
+     ],
+     [
+      13.3987778,
+      52.5233347
+     ],
+     [
+      13.3989099,
+      52.5232673
+     ],
+     [
+      13.3990185,
+      52.5232173
+     ],
+     [
+      13.3990912,
+      52.5231874
+     ],
+     [
+      13.3999042,
+      52.5228728
+     ],
+     [
+      13.3999474,
+      52.5228547
+     ],
+     [
+      13.3999899,
+      52.5228343
+     ],
+     [
+      13.4000099,
+      52.5228223
+     ]
+    ]
+   },
+   "tags": {
+    "highway": "tertiary",
+    "maxspeed": "30",
+    "maxspeed:forward": "",
+    "maxspeed:backward": "",
+    "oneway": "yes",
+    "junction": ""
+   }
+  },
+  {
+   "type": "item",
+   "id": 4610364,
+   "geometry": {
+    "type": "LineString",
+    "coordinates": [
+     [
+      13.4018634,
+      52.5289916
+     ],
+     [
+      13.4018614,
+      52.5290245
+     ],
+     [
+      13.4018577,
+      52.5290865
+     ],
+     [
+      13.4018332,
+      52.5291618
+     ],
+     [
+      13.4016197,
+      52.5294951
+     ],
+     [
+      13.4015977,
+      52.5295316
+     ],
+     [
+      13.401541,
+      52.529618
+     ]
+    ]
+   },
+   "tags": {
+    "highway": "tertiary",
+    "maxspeed": "30",
+    "maxspeed:forward": "",
+    "maxspeed:backward": "",
+    "oneway": "yes",
+    "junction": ""
+   }
+  },
+  {
+   "type": "item",
+   "id": 4611698,
+   "geometry": {
+    "type": "LineString",
+    "coordinates": [
+     [
+      13.4027024,
+      52.5188726
+     ],
+     [
+      13.4029577,
+      52.5189793
+     ],
+     [
+      13.4031176,
+      52.5190545
+     ],
+     [
+      13.4037577,
+      52.5193794
+     ]
+    ]
+   },
+   "tags": {
+    "highway": "primary",
+    "maxspeed": "50",
+    "maxspeed:forward": "",
+    "maxspeed:backward": "",
+    "oneway": "yes",
+    "junction": ""
+   }
+  },
+  {
+   "type": "item",
+   "id": 4611722,
+   "geometry": {
+    "type": "LineString",
+    "coordinates": [
+     [
+      13.4017235,
+      52.5115023
+     ],
+     [
+      13.4015789,
+      52.5114545
+     ],
+     [
+      13.4015076,
+      52.5114337
+     ],
+     [
+      13.4013503,
+      52.5113897
+     ],
+     [
+      13.4012782,
+      52.5113718
+     ],
+     [
+      13.4011947,
+      52.5113523
+     ],
+     [
+      13.401122,
+      52.5113357
+     ]
+    ]
+   },
+   "tags": {
+    "highway": "primary",
+    "maxspeed": "50",
+    "maxspeed:forward": "",
+    "maxspeed:backward": "",
+    "oneway": "yes",
+    "junction": ""
+   }
+  },
+  {
+   "type": "item",
+   "id": 4611723,
+   "geometry": {
+    "type": "LineString",
+    "coordinates": [
+     [
+      13.4027294,
+      52.5120297
+     ],
+     [
+      13.4026478,
+      52.5119764
+     ]
+    ]
+   },
+   "tags": {
+    "highway": "primary",
+    "maxspeed": "50",
+    "maxspeed:forward": "",
+    "maxspeed:backward": "",
+    "oneway": "yes",
+    "junction": ""
+   }
+  },
+  {
+   "type": "item",
+   "id": 4611724,
+   "geometry": {
+    "type": "LineString",
+    "coordinates": [
+     [
+      13.4028346,
+      52.5119218
+     ],
+     [
+      13.4032903,
+      52.5122364
+     ],
+     [
+      13.4035092,
+      52.5123752
+     ]
+    ]
+   },
+   "tags": {
+    "highway": "primary",
+    "maxspeed": "50",
+    "maxspeed:forward": "",
+    "maxspeed:backward": "",
+    "oneway": "yes",
+    "junction": ""
+   }
+  },
+  {
+   "type": "item",
+   "id": 4611726,
+   "geometry": {
+    "type": "LineString",
+    "coordinates": [
+     [
+      13.4097906,
+      52.5181988
+     ],
+     [
+      13.4096431,
+      52.5181276
+     ],
+     [
+      13.4092575,
+      52.5179339
+     ],
+     [
+      13.4090573,
+      52.5178331
+     ]
+    ]
+   },
+   "tags": {
+    "highway": "primary",
+    "maxspeed": "50",
+    "maxspeed:forward": "",
+    "maxspeed:backward": "",
+    "oneway": "yes",
+    "junction": ""
+   }
+  },
+  {
+   "type": "item",
+   "id": 4612404,
+   "geometry": {
+    "type": "LineString",
+    "coordinates": [
+     [
+      13.3993639,
+      52.5067879
+     ],
+     [
+      13.3995156,
+      52.5067459
+     ],
+     [
+      13.3996019,
+      52.506722
+     ],
+     [
+      13.3996918,
+      52.5066971
+     ],
+     [
+      13.4001568,
+      52.5065683
+     ]
+    ]
+   },
+   "tags": {
+    "highway": "secondary",
+    "maxspeed": "50",
+    "maxspeed:forward": "",
+    "maxspeed:backward": "",
+    "oneway": "",
+    "junction": ""
+   }
+  },
+  {
+   "type": "item",
+   "id": 4612414,
+   "geometry": {
+    "type": "LineString",
+    "coordinates": [
+     [
+      13.4083003,
+      52.512319
+     ],
+     [
+      13.4083467,
+      52.5122874
+     ],
+     [
+      13.4086745,
+      52.5120605
+     ],
+     [
+      13.4087747,
+      52.51199
+     ]
+    ]
+   },
+   "tags": {
+    "highway": "tertiary",
+    "maxspeed": "30",
+    "maxspeed:forward": "",
+    "maxspeed:backward": "",
+    "oneway": "",
+    "junction": ""
+   }
+  },
+  {
+   "type": "item",
+   "id": 4612423,
+   "geometry": {
+    "type": "LineString",
+    "coordinates": [
+     [
+      13.4153605,
+      52.5112536
+     ],
+     [
+      13.4151848,
+      52.5113081
+     ],
+     [
+      13.4151552,
+      52.5113098
+     ],
+     [
+      13.4150197,
+      52.5113186
+     ]
+    ]
+   },
+   "tags": {
+    "highway": "tertiary",
+    "maxspeed": "50",
+    "maxspeed:forward": "",
+    "maxspeed:backward": "",
+    "oneway": "yes",
+    "junction": ""
+   }
+  },
+  {
+   "type": "item",
+   "id": 4612431,
+   "geometry": {
+    "type": "LineString",
+    "coordinates": [
+     [
+      13.4164569,
+      52.5109966
+     ],
+     [
+      13.4166103,
+      52.5112623
+     ],
+     [
+      13.4166319,
+      52.5112997
+     ],
+     [
+      13.4166844,
+      52.5114107
+     ]
+    ]
+   },
+   "tags": {
+    "highway": "secondary",
+    "maxspeed": "30",
+    "maxspeed:forward": "",
+    "maxspeed:backward": "",
+    "oneway": "",
+    "junction": ""
+   }
+  },
+  {
+   "type": "item",
+   "id": 4612696,
+   "geometry": {
+    "type": "LineString",
+    "coordinates": [
+     [
+      13.4069802,
+      52.4988823
+     ],
+     [
+      13.4070206,
+      52.4989367
+     ],
+     [
+      13.407073,
+      52.4990046
+     ],
+     [
+      13.4071073,
+      52.499048
+     ],
+     [
+      13.4077601,
+      52.4998828
+     ],
+     [
+      13.4077854,
+      52.4999152
+     ],
+     [
+      13.4078566,
+      52.5000069
+     ],
+     [
+      13.4078904,
+      52.5000503
+     ],
+     [
+      13.4079197,
+      52.5000881
+     ],
+     [
+      13.4079614,
+      52.5001416
+     ],
+     [
+      13.4080773,
+      52.5002892
+     ],
+     [
+      13.4082561,
+      52.5005168
+     ],
+     [
+      13.4084387,
+      52.5007493
+     ]
+    ]
+   },
+   "tags": {
+    "highway": "secondary",
+    "maxspeed": "50",
+    "maxspeed:forward": "",
+    "maxspeed:backward": "",
+    "oneway": "",
+    "junction": ""
+   }
+  },
+  {
+   "type": "item",
+   "id": 4612758,
+   "geometry": {
+    "type": "LineString",
+    "coordinates": [
+     [
+      13.4122897,
+      52.5032045
+     ],
+     [
+      13.4123393,
+      52.5031913
+     ],
+     [
+      13.4124534,
+      52.5031608
+     ],
+     [
+      13.412565,
+      52.50313
+     ],
+     [
+      13.4126926,
+      52.5030947
+     ],
+     [
+      13.4127479,
+      52.5030795
+     ],
+     [
+      13.4129203,
+      52.5030319
+     ],
+     [
+      13.4131485,
+      52.5029688
+     ],
+     [
+      13.4132821,
+      52.5029319
+     ]
+    ]
+   },
+   "tags": {
+    "highway": "tertiary",
+    "maxspeed": "30",
+    "maxspeed:forward": "",
+    "maxspeed:backward": "",
+    "oneway": "",
+    "junction": ""
+   }
+  },
+  {
+   "type": "item",
+   "id": 4612871,
+   "geometry": {
+    "type": "LineString",
+    "coordinates": [
+     [
+      13.4105762,
+      52.510162
+     ],
+     [
+      13.4107359,
+      52.5100173
+     ],
+     [
+      13.4109175,
+      52.5098564
+     ],
+     [
+      13.4111724,
+      52.5096406
+     ],
+     [
+      13.4112478,
+      52.5095803
+     ],
+     [
+      13.4114512,
+      52.5094703
+     ],
+     [
+      13.4114761,
+      52.5094568
+     ],
+     [
+      13.4120781,
+      52.5091311
+     ],
+     [
+      13.4121431,
+      52.5090946
+     ],
+     [
+      13.4122225,
+      52.50905
+     ],
+     [
+      13.4124364,
+      52.5089363
+     ]
+    ]
+   },
+   "tags": {
+    "highway": "tertiary",
+    "maxspeed": "30",
+    "maxspeed:forward": "",
+    "maxspeed:backward": "",
+    "oneway": "",
+    "junction": ""
+   }
+  },
+  {
+   "type": "item",
+   "id": 4612872,
+   "geometry": {
+    "type": "LineString",
+    "coordinates": [
+     [
+      13.41781,
+      52.5065998
+     ],
+     [
+      13.4176894,
+      52.5066192
+     ],
+     [
+      13.4176856,
+      52.5066198
+     ],
+     [
+      13.4176099,
+      52.5066417
+     ],
+     [
+      13.4174701,
+      52.5066845
+     ],
+     [
+      13.4173698,
+      52.5067154
+     ],
+     [
+      13.4172286,
+      52.5067598
+     ]
+    ]
+   },
+   "tags": {
+    "highway": "tertiary",
+    "maxspeed": "50",
+    "maxspeed:forward": "",
+    "maxspeed:backward": "",
+    "oneway": "",
+    "junction": ""
+   }
+  },
+  {
+   "type": "item",
+   "id": 4612875,
+   "geometry": {
+    "type": "LineString",
+    "coordinates": [
+     [
+      13.4228349,
+      52.5120564
+     ],
+     [
+      13.4227709,
+      52.5119892
+     ],
+     [
+      13.4227139,
+      52.5119301
+     ],
+     [
+      13.4226864,
+      52.5118989
+     ],
+     [
+      13.4225435,
+      52.5117028
+     ],
+     [
+      13.4224829,
+      52.511619
+     ],
+     [
+      13.4222936,
+      52.5113596
+     ],
+     [
+      13.4222638,
+      52.511318
+     ],
+     [
+      13.4221359,
+      52.5111402
+     ],
+     [
+      13.4219767,
+      52.5109191
+     ],
+     [
+      13.4218425,
+      52.5107338
+     ],
+     [
+      13.4217941,
+      52.5106656
+     ],
+     [
+      13.4216566,
+      52.5104735
+     ],
+     [
+      13.4216022,
+      52.5104
+     ],
+     [
+      13.4215211,
+      52.5102803
+     ]
+    ]
+   },
+   "tags": {
+    "highway": "tertiary",
+    "maxspeed": "50",
+    "maxspeed:forward": "",
+    "maxspeed:backward": "",
+    "oneway": "",
+    "junction": ""
+   }
+  },
+  {
+   "type": "item",
+   "id": 4612961,
+   "geometry": {
+    "type": "LineString",
+    "coordinates": [
+     [
+      13.4128298,
+      52.5157624
+     ],
+     [
+      13.4130309,
+      52.5157012
+     ],
+     [
+      13.4136193,
+      52.5156789
+     ],
+     [
+      13.4143881,
+      52.5157159
+     ],
+     [
+      13.4147191,
+      52.5157349
+     ],
+     [
+      13.415027,
+      52.5157526
+     ],
+     [
+      13.4151578,
+      52.51576
+     ]
+    ]
+   },
+   "tags": {
+    "highway": "secondary",
+    "maxspeed": "50",
+    "maxspeed:forward": "",
+    "maxspeed:backward": "",
+    "oneway": "yes",
+    "junction": ""
+   }
+  },
+  {
+   "type": "item",
+   "id": 4613110,
+   "geometry": {
+    "type": "LineString",
+    "coordinates": [
+     [
+      13.4117364,
+      52.5238949
+     ],
+     [
+      13.4119039,
+      52.523894
+     ],
+     [
+      13.4119624,
+      52.5238936
+     ],
+     [
+      13.4120647,
+      52.5238931
+     ],
+     [
+      13.4121513,
+      52.5238926
+     ]
+    ]
+   },
+   "tags": {
+    "highway": "primary",
+    "maxspeed": "50",
+    "maxspeed:forward": "",
+    "maxspeed:backward": "",
+    "oneway": "yes",
+    "junction": ""
+   }
+  },
+  {
+   "type": "item",
+   "id": 4613112,
+   "geometry": {
+    "type": "LineString",
+    "coordinates": [
+     [
+      13.4196306,
+      52.5254679
+     ],
+     [
+      13.418176,
+      52.526076
+     ],
+     [
+      13.4180159,
+      52.526142
+     ]
+    ]
+   },
+   "tags": {
+    "highway": "primary",
+    "maxspeed": "50",
+    "maxspeed:forward": "",
+    "maxspeed:backward": "",
+    "oneway": "yes",
+    "junction": ""
+   }
+  },
+  {
+   "type": "item",
+   "id": 4613292,
+   "geometry": {
+    "type": "LineString",
+    "coordinates": [
+     [
+      13.4091415,
+      52.5241096
+     ],
+     [
+      13.4093845,
+      52.5240192
+     ],
+     [
+      13.4094357,
+      52.5240115
+     ],
+     [
+      13.4096231,
+      52.5239859
+     ]
+    ]
+   },
+   "tags": {
+    "highway": "tertiary",
+    "maxspeed": "50",
+    "maxspeed:forward": "",
+    "maxspeed:backward": "",
+    "oneway": "yes",
+    "junction": ""
+   }
+  },
+  {
+   "type": "item",
+   "id": 4613297,
+   "geometry": {
+    "type": "LineString",
+    "coordinates": [
+     [
+      13.4101382,
+      52.5285535
+     ],
+     [
+      13.4100775,
+      52.5286354
+     ],
+     [
+      13.4100574,
+      52.5286666
+     ],
+     [
+      13.410057,
+      52.5286673
+     ],
+     [
+      13.4100022,
+      52.5287526
+     ]
+    ]
+   },
+   "tags": {
+    "highway": "tertiary",
+    "maxspeed": "50",
+    "maxspeed:forward": "",
+    "maxspeed:backward": "",
+    "oneway": "yes",
+    "junction": ""
+   }
+  },
+  {
+   "type": "item",
+   "id": 4613308,
+   "geometry": {
+    "type": "LineString",
+    "coordinates": [
+     [
+      13.4096231,
+      52.5239859
+     ],
+     [
+      13.4098074,
+      52.5239656
+     ],
+     [
+      13.4099963,
+      52.5239569
+     ],
+     [
+      13.4107231,
+      52.5239185
+     ]
+    ]
+   },
+   "tags": {
+    "highway": "tertiary",
+    "maxspeed": "50",
+    "maxspeed:forward": "",
+    "maxspeed:backward": "",
+    "oneway": "yes",
+    "junction": ""
+   }
+  },
+  {
+   "type": "item",
+   "id": 4615031,
+   "geometry": {
+    "type": "LineString",
+    "coordinates": [
+     [
+      13.4329991,
+      52.5363211
+     ],
+     [
+      13.4328241,
+      52.536381
+     ],
+     [
+      13.4327898,
+      52.5363928
+     ]
+    ]
+   },
+   "tags": {
+    "highway": "primary",
+    "maxspeed": "50",
+    "maxspeed:forward": "",
+    "maxspeed:backward": "",
+    "oneway": "yes",
+    "junction": ""
+   }
+  },
+  {
+   "type": "item",
+   "id": 4615034,
+   "geometry": {
+    "type": "LineString",
+    "coordinates": [
+     [
+      13.4297046,
+      52.5331128
+     ],
+     [
+      13.4299125,
+      52.5332945
+     ],
+     [
+      13.4301251,
+      52.533476
+     ],
+     [
+      13.4303339,
+      52.5336559
+     ],
+     [
+      13.4304883,
+      52.5337889
+     ],
+     [
+      13.430684,
+      52.5339575
+     ],
+     [
+      13.4308466,
+      52.5340976
+     ],
+     [
+      13.4309708,
+      52.5342046
+     ],
+     [
+      13.431003,
+      52.5342321
+     ],
+     [
+      13.4312217,
+      52.5344205
+     ]
+    ]
+   },
+   "tags": {
+    "highway": "primary",
+    "maxspeed": "50",
+    "maxspeed:forward": "",
+    "maxspeed:backward": "",
+    "oneway": "yes",
+    "junction": ""
+   }
+  },
+  {
+   "type": "item",
+   "id": 4615059,
+   "geometry": {
+    "type": "LineString",
+    "coordinates": [
+     [
+      13.4252659,
+      52.5281946
+     ],
+     [
+      13.4251057,
+      52.5281803
+     ],
+     [
+      13.4249454,
+      52.5281619
+     ]
+    ]
+   },
+   "tags": {
+    "highway": "tertiary",
+    "maxspeed": "50",
+    "maxspeed:forward": "",
+    "maxspeed:backward": "",
+    "oneway": "yes",
+    "junction": ""
+   }
+  },
+  {
+   "type": "item",
+   "id": 4615322,
+   "geometry": {
+    "type": "LineString",
+    "coordinates": [
+     [
+      13.4388563,
+      52.541344
+     ],
+     [
+      13.4386903,
+      52.5414093
+     ],
+     [
+      13.4386629,
+      52.5414192
+     ]
+    ]
+   },
+   "tags": {
+    "highway": "tertiary",
+    "maxspeed": "50",
+    "maxspeed:forward": "",
+    "maxspeed:backward": "",
+    "oneway": "yes",
+    "junction": ""
+   }
+  },
+  {
+   "type": "item",
+   "id": 4615336,
+   "geometry": {
+    "type": "LineString",
+    "coordinates": [
+     [
+      13.4446475,
+      52.5456175
+     ],
+     [
+      13.4442513,
+      52.5454476
+     ]
+    ]
+   },
+   "tags": {
+    "highway": "primary",
+    "maxspeed": "50",
+    "maxspeed:forward": "",
+    "maxspeed:backward": "",
+    "oneway": "yes",
+    "junction": ""
+   }
+  }
+ ]
+}

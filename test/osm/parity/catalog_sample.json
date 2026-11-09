@@ -1,0 +1,21 @@
+{
+  "format": 1,
+  "packages": [
+    {
+      "id": "bremen",
+      "name": "Bremen",
+      "date": 20261029,
+      "bytes": 305000,
+      "sha256": "cbe1039ca071285edd7762f77adb363cb7439b05d5e0b6f3a4c1c2d3e4f5a6b7",
+      "file": "bremen.sblp"
+    },
+    {
+      "id": "hamburg",
+      "name": "Hamburg",
+      "date": 20261029,
+      "bytes": 747000,
+      "sha256": "86c733fe147647be51c6a910ea4a111f674c690fa4c1c2d3e4f5a6b7c8d9e0f1",
+      "file": "hamburg.sblp"
+    }
+  ]
+}

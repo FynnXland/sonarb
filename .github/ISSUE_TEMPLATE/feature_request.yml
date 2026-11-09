@@ -1,0 +1,25 @@
+name: Idee oder Wunsch
+description: Eine Verbesserung vorschlagen.
+labels: ["enhancement"]
+body:
+  - type: markdown
+    attributes:
+      value: "Beschreib zuerst das Problem. Ein klares Problem hilft oft mehr als eine fertige Lösung. Neue Datenquellen kommen nur in Frage, wenn ihre Lizenz die Nutzung erlaubt."
+  - type: textarea
+    id: problem
+    validations: {required: true}
+    attributes: {label: Problem, description: "Was möchtest du tun, und was macht es heute schwer?"}
+  - type: textarea
+    id: proposal
+    validations: {required: true}
+    attributes: {label: Vorschlag}
+  - type: textarea
+    id: alternatives
+    attributes: {label: Alternativen und Umwege}
+  - type: checkboxes
+    id: privacy
+    attributes:
+      label: Datenschutz
+      options:
+        - label: "Meine Beispiele enthalten keine echten Standorte oder persönlichen Angaben. Issues sind öffentlich."
+          required: true

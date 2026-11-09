@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Sonar-Logo ruhend: gleiche Geometrie wie SonarMark in lib/app/sonar_mark.dart
+     (Ring 164 dp außen, Mitte 144/144). Fläche 288 dp, sichtbarer Kreis des Android-12-Splash 192 dp. -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:aapt="http://schemas.android.com/aapt"
+    android:width="288dp"
+    android:height="288dp"
+    android:viewportWidth="288"
+    android:viewportHeight="288">
+
+    <path android:pathData="M144,144 L107.05,74.52 A78.7,78.7 0 0 1 180.95,74.52 Z">
+        <aapt:attr name="android:fillColor">
+            <gradient
+                android:type="radial"
+                android:centerX="144"
+                android:centerY="144"
+                android:gradientRadius="78.7"
+                android:startColor="#B3FFB020"
+                android:endColor="#12FFB020" />
+        </aapt:attr>
+    </path>
+
+    <path
+        android:pathData="M65.3,144 a78.7,78.7 0 1,0 157.4,0 a78.7,78.7 0 1,0 -157.4,0"
+        android:strokeColor="#FFB020"
+        android:strokeWidth="6.56" />
+    <path
+        android:pathData="M94.4,144 a49.6,49.6 0 1,0 99.2,0 a49.6,49.6 0 1,0 -99.2,0"
+        android:strokeColor="#AAFFB020"
+        android:strokeWidth="6.56" />
+    <path
+        android:fillColor="#FFB020"
+        android:pathData="M129.4,144 a14.6,14.6 0 1,0 29.2,0 a14.6,14.6 0 1,0 -29.2,0" />
+</vector>

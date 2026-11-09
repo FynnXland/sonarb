@@ -1,0 +1,11 @@
+blank_issues_enabled: false
+contact_links:
+  - name: Sicherheitslücke melden
+    url: https://github.com/FynnXland/sonarb/security/advisories/new
+    about: Sicherheitsprobleme bitte privat melden, nie in einem öffentlichen Issue.
+  - name: Fehler in den Kartendaten
+    url: https://www.openstreetmap.org/fixthemap
+    about: Fehlende oder falsche Blitzer, Ampeln und Tempolimits direkt in OpenStreetMap korrigieren.
+  - name: Häufige Probleme
+    url: https://github.com/FynnXland/sonarb#probleme-und-lösungen
+    about: Bekannte Probleme und was hilft.

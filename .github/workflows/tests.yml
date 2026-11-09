@@ -1,0 +1,32 @@
+name: Tests
+on:
+  push: {branches: [main]}
+  pull_request:
+  workflow_dispatch:
+permissions: {contents: read}
+concurrency: {group: "${{ github.workflow }}-${{ github.ref }}", cancel-in-progress: true}
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v7
+      - name: Wächter (Schlüssel, lokale Plugins, verbotene Namen)
+        run: python3 tool/check_public.py
+      - uses: actions/setup-java@v6
+        with: {distribution: temurin, java-version: "17"}
+      - uses: subosito/flutter-action@v2
+        with: {channel: stable, flutter-version: "3.47.4", cache: true}
+      - run: flutter --version
+      - run: flutter pub get
+      - name: Plugin-Liste ist die leere Fassung
+        run: |
+          dart run tool/plugins.dart --reset
+          git diff --exit-code -- lib/plugins/installed_plugins.dart
+      - name: Fremdlizenzen aktuell
+        run: dart run tool/third_party_notices.dart --check
+      - run: dart format --output=none --set-exit-if-changed lib test tool
+      - run: flutter analyze
+      - run: flutter test
+      - name: Debug-Build (ohne Keystore)
+        run: flutter build apk --debug

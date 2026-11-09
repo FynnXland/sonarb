@@ -1,0 +1,14 @@
+// Vorlage für lib/plugins/local/<name>/plugin.dart (Anleitung: docs/PLUGINS.md).
+// Diese Datei nach lib/plugins/local/<name>/plugin.dart kopieren und die Werte eintragen.
+// lib/plugins/local/ steht in .gitignore: URL und Token landen nie im Repository.
+import 'package:sonarb/core/contracts/data_source_plugin.dart';
+import 'package:sonarb/plugins/example/json_feed_plugin.dart';
+
+/// Einstiegspunkt, den `dart run tool/plugins.dart` findet. Name und Signatur nicht ändern.
+DataSourcePlugin createPlugin() => JsonFeedPlugin(
+      id: 'mein-feed', // [a-z0-9_-], stabil (Schlüssel für die Ein/Aus-Einstellung)
+      displayName: 'Mein Feed',
+      baseUrl: Uri.parse('https://example.invalid/feed'),
+      bearerToken: null, // oder 'geheimes-token'
+      refreshInterval: const Duration(seconds: 60),
+    );

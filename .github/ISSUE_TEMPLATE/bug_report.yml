@@ -1,0 +1,46 @@
+name: Fehler melden
+description: Etwas funktioniert nicht wie erwartet.
+labels: ["bug"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        **Issues sind öffentlich und bleiben es.** Keine echten Standorte, Adressen, Namen oder Exporte eigener Meldungen einfügen.
+        Sicherheitsprobleme bitte [privat melden](https://github.com/FynnXland/sonarb/security/advisories/new).
+        Fehlende oder falsche Blitzer, Ampeln und Tempolimits stammen aus OpenStreetMap und lassen sich dort korrigieren.
+  - type: input
+    id: version
+    validations: {required: true}
+    attributes: {label: App-Version, description: "Steht unter Einstellungen → Über, z. B. „Version 1.0.0 (21)“."}
+  - type: input
+    id: android
+    validations: {required: true}
+    attributes: {label: Android-Version und Gerät, description: "z. B. „Android 15, Pixel 8“"}
+  - type: dropdown
+    id: area
+    attributes:
+      label: Bereich
+      options: ["Warnung und Ansagen", "Karte", "Standort und Hintergrund", "Melden und eigene Hotspots", "Tempolimit", "Fahrstatistik", "Einstellungen", "Anderes"]
+  - type: textarea
+    id: steps
+    validations: {required: true}
+    attributes: {label: Schritte zum Nachstellen}
+  - type: textarea
+    id: behaviour
+    validations: {required: true}
+    attributes: {label: Erwartet und tatsächlich}
+  - type: textarea
+    id: log
+    attributes:
+      label: Log-Auszug (optional)
+      render: text
+      description: |
+        Nur falls vorhanden, z. B. aus `adb logcat`. **Logs können Koordinaten enthalten.**
+        Ersetze Orte, Koordinaten und Namen durch `[geschwärzt]`.
+  - type: checkboxes
+    id: privacy
+    attributes:
+      label: Datenschutz
+      options:
+        - label: "Ich habe echte Standorte, Namen und andere persönliche Angaben entfernt oder geschwärzt."
+          required: true
