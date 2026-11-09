@@ -117,7 +117,7 @@ Signaltöne.
 | Wann angesagt wird | Einstellungen → Warnung → „Ansage ab“ (Standard 600 m, bei hohem Tempo früher) |
 | Sätze einzeln abschalten | Einstellungen → „Sprachansagen“ |
 | Karte ausrichten | Menü „⋯“ auf der Karte: Norden oder Fahrtrichtung oben, flach oder geneigt |
-| Sonarb ganz beenden | Menü „⋯“ → „Sonarb beenden“, oder „Beenden“ in der Benachrichtigung |
+| Sonarb ganz beenden | Aus-Knopf unten rechts auf der Karte, oder „Beenden“ in der Benachrichtigung |
 
 ## Datenschutz und deine Daten
 

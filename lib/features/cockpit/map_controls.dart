@@ -10,7 +10,7 @@ import '../../app/theme.dart';
 import 'drive_controller.dart';
 
 /// Was das Kartenmenü anbietet.
-enum MapMenuAction { northUp, headingUp, flat, tilted, quit }
+enum MapMenuAction { northUp, headingUp, flat, tilted }
 
 /// Beendet die App vollständig: Überwachung und Vordergrunddienst stoppen, offene Hotspots
 /// speichern, dann schließt sich die App.
@@ -21,9 +21,28 @@ Future<void> quitApp(WidgetRef ref) async {
   await SystemNavigator.pop();
 }
 
-/// Kleiner „⋯“-Knopf oben rechts auf der Karte: Ausrichtung, Ansicht und Beenden.
-/// Beenden steht im Menü statt als eigener Knopf: zwei bewusste Tipps (Menü auf, Eintrag
-/// wählen) lösen es aus, ein Streifen im Vorbeifahren nicht, und eine Rückfrage braucht es nicht.
+/// Aus-Knopf unten rechts unter dem OSM-Hinweis: beendet Sonarb mit einem Tipp.
+/// Unten rechts, weil oben links die Hinweise der Karte stehen.
+class QuitButton extends ConsumerWidget {
+  const QuitButton({super.key});
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) => Material(
+    color: SonarColors.surface,
+    shape: RoundedRectangleBorder(
+      borderRadius: BorderRadius.circular(SonarRadius.s),
+      side: const BorderSide(color: SonarColors.outline),
+    ),
+    child: IconButton(
+      tooltip: 'Sonarb beenden',
+      onPressed: () => quitApp(ref),
+      style: IconButton.styleFrom(minimumSize: const Size(48, 48)),
+      icon: const Icon(Icons.power_settings_new, color: SonarColors.red),
+    ),
+  );
+}
+
+/// Kleiner „⋯“-Knopf oben rechts auf der Karte: Ausrichtung und Ansicht.
 class MapMenuButton extends ConsumerWidget {
   const MapMenuButton({super.key});
 
@@ -57,7 +76,6 @@ class MapMenuButton extends ConsumerWidget {
           MapMenuAction.tilted => ctrl.change(
             (x) => x.copyWith(tiltWhileDriving: true, headingUp: true),
           ),
-          MapMenuAction.quit => quitApp(ref),
         },
         itemBuilder: (_) => [
           CheckedPopupMenuItem(
@@ -80,17 +98,6 @@ class MapMenuButton extends ConsumerWidget {
             value: MapMenuAction.tilted,
             checked: tilted,
             child: const Text('Bei Fahrt geneigt'),
-          ),
-          const PopupMenuDivider(),
-          const PopupMenuItem(
-            value: MapMenuAction.quit,
-            child: Row(
-              children: [
-                Icon(Icons.power_settings_new, color: SonarColors.red),
-                SizedBox(width: SonarSpace.m),
-                Flexible(child: Text('Sonarb beenden')),
-              ],
-            ),
           ),
         ],
       ),

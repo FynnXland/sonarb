@@ -30,3 +30,7 @@ jobs:
       - run: flutter test
       - name: Debug-Build (ohne Keystore)
         run: flutter build apk --debug
+      # Danach speichert flutter-action seinen Cache; ohne Aufräumen ist die Platte des Runners voll.
+      - name: Platz freigeben
+        if: always()
+        run: rm -rf build android/.gradle ~/.gradle/caches

@@ -92,13 +92,30 @@ void main() {
     expect(s.headingUp, isTrue);
   });
 
-  testWidgets('Sonarb beenden: Überwachung aus, App schließt', (tester) async {
+  testWidgets('Aus-Knopf: Überwachung aus, App schließt', (tester) async {
     final container = await pumpMap(tester);
     expect(container.read(driveControllerProvider).running, isTrue);
-    await choose(tester, 'Sonarb beenden');
+    await tester.tap(find.byTooltip('Sonarb beenden'));
+    await tester.pump();
     await tester.pump();
     expect(container.read(driveControllerProvider).running, isFalse);
     expect(platformCalls, contains('SystemNavigator.pop'));
+  });
+
+  testWidgets('Aus-Knopf unten rechts unter dem OSM-Hinweis, nicht im Menü', (
+    tester,
+  ) async {
+    await pumpMap(tester);
+    final quit = tester.getRect(find.byTooltip('Sonarb beenden'));
+    final osm = tester.getRect(find.text('© OpenStreetMap-Mitwirkende'));
+    expect(quit.top, greaterThanOrEqualTo(osm.bottom));
+    expect(quit.right, greaterThan(360 - 60));
+    expect(quit.bottom, greaterThan(640 - 70));
+    expect(quit.width, greaterThanOrEqualTo(48));
+    await tester.tap(find.byTooltip('Kartenoptionen'));
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 400));
+    expect(find.text('Sonarb beenden'), findsNothing);
   });
 
   testWidgets('Menü bei großer Schrift ohne Überlauf, Knopf 48 groß', (
@@ -111,7 +128,7 @@ void main() {
     await tester.tap(find.byTooltip('Kartenoptionen'));
     await tester.pump();
     await tester.pump(const Duration(milliseconds: 400));
-    expect(find.text('Sonarb beenden'), findsOneWidget);
+    expect(find.text('Bei Fahrt geneigt'), findsOneWidget);
     expect(tester.takeException(), isNull);
   });
 }
