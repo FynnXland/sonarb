@@ -19,6 +19,7 @@ import '../features/cockpit/drive_controller.dart';
 import '../features/cockpit/drive_state.dart';
 import '../features/cockpit/map_heat_spots.dart';
 import '../features/hotspots/hotspots.dart';
+import '../features/maps_nav/maps_nav.dart';
 import '../features/osm/limit_download.dart';
 import '../features/osm/limit_packages.dart';
 import '../features/osm/osm.dart';
@@ -39,6 +40,7 @@ class AppServices {
     required this.limitPackages,
     required this.limitDownloader,
     this.heatSpots = noHeatSpots,
+    this.mapsNavigation = const NoMapsNavigation(),
   });
 
   final FixedPointSource osm;
@@ -54,6 +56,9 @@ class AppServices {
 
   /// Blitzer-Hotspots für die Karte, wie sie die Warnlogik bildet ([createHeatSpotFinder]).
   final HeatSpotFinder heatSpots;
+
+  /// Navigationsmitteilung von Google Maps (Einstellung „Navigation von Google Maps nutzen“).
+  final MapsNavigation mapsNavigation;
 
   Future<void> dispose() async {
     await alerts.dispose();
@@ -110,6 +115,7 @@ Future<AppServices> startServices() async {
     prefs: prefs,
     limitPackages: limitPackages,
     limitDownloader: LimitDownloader(catalogUrl: Uri.parse(limitCatalogUrl)),
+    mapsNavigation: createMapsNavigation(),
     heatSpots: createHeatSpotFinder(
       minReports: () => engine.settings.heatSpotMinReports,
     ),

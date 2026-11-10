@@ -26,6 +26,8 @@ import 'package:sonarb/features/cockpit/screen_wake.dart';
 import 'package:sonarb/features/osm/limit_download.dart';
 import 'package:sonarb/features/osm/limit_packages.dart';
 
+import 'fake_maps_nav.dart';
+
 PositionFix fixAt(
   double lat,
   double lon, {
@@ -473,7 +475,10 @@ class TestRig {
     return TestRig(await SharedPreferences.getInstance());
   }
 
+  final mapsNav = FakeMapsNavigation();
+
   late final services = AppServices(
+    mapsNavigation: mapsNav,
     osm: osm,
     hotspots: hotspots,
     audio: audio,

@@ -43,6 +43,19 @@
             android:foregroundServiceType="location"
             android:exported="false"
             android:stopWithTask="true"/>
+        <!-- Liest die Navigationsmitteilung von Google Maps (Einstellung „Navigation von Google Maps
+             nutzen“). Aus, bis der Nutzer es einschaltet: Dann listet Android den Dienst erst für die
+             Freigabe und bindet ihn nur mit Freigabe. -->
+        <service
+            android:name=".NavNotificationListener"
+            android:label="Sonarb: Navigation von Google Maps"
+            android:enabled="false"
+            android:exported="true"
+            android:permission="android.permission.BIND_NOTIFICATION_LISTENER_SERVICE">
+            <intent-filter>
+                <action android:name="android.service.notification.NotificationListenerService"/>
+            </intent-filter>
+        </service>
         <meta-data
             android:name="de.fynn.handy.sonarb.NOTIFICATION_ICON"
             android:resource="@drawable/ic_stat_sonarb"/>

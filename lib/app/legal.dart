@@ -70,11 +70,23 @@ const privacySections = <PrivacySection>[
         'jede Fahrt löschen.',
   ),
   (
+    title: 'Navigationshinweise von Google Maps',
+    body:
+        'Nur wenn „Navigation von Google Maps nutzen“ eingeschaltet und Sonarb der Zugriff auf '
+        'Mitteilungen erlaubt ist: Während einer Navigation liest Sonarb den Text der '
+        'Navigationsmitteilung von Google Maps, etwa „In 300 m rechts auf B72“. Der Text bleibt '
+        'nur im Arbeitsspeicher des Telefons, wird nicht gespeichert und nicht übertragen. '
+        'Mitteilungen anderer Apps liest Sonarb nicht. Ausschalten lässt es sich in den '
+        'Einstellungen unter „Warnung“; den Zugriff kann man jederzeit in den '
+        'Android-Einstellungen entziehen.',
+  ),
+  (
     title: 'Berechtigungen',
     body:
         'Standort: für die Warnungen. Benachrichtigungen: Anzeige, solange die Überwachung '
         'läuft. Vordergrunddienst: hält die Überwachung bei ausgeschaltetem Bildschirm am '
-        'Laufen. Internet: Laden der Kartendaten.',
+        'Laufen. Internet: Laden der Kartendaten. Zugriff auf Mitteilungen (nur mit '
+        'Freigabe): Navigationshinweise von Google Maps.',
   ),
   (
     title: 'Löschen',

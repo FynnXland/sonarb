@@ -3,15 +3,18 @@
 #
 #   tool/media/screenshots.sh            Debug-Build (Paket de.fynn.handy.sonarb.debug)
 #   BUILD=release tool/media/screenshots.sh   Release-Build (braucht den Keystore)
+#   KEEP=ordner tool/media/screenshots.sh     legt die Rohbilder zusätzlich dort ab
 #
 # Voraussetzungen: genau ein laufender Emulator (adb), Flutter, Python 3 (PYTHON=…), ffmpeg.
 # Die App-Daten des gewählten Pakets werden gelöscht. Die Fahrt ist erfunden und folgt
-# tool/media/route.json (Amsinckstraße, Hamburg). Ergebnis in docs/media/.
-#
+# tool/media/route.json (Saarlandstraße, Hamburg, nordwärts bis zum Blitzer). Ergebnis in docs/media/.
 #
 # Im Stand ortet Sonarb nur sparsam über WLAN und Funkzellen; geo fix geht ans GPS. Deshalb schaltet das
-# Skript nach dem Laden WLAN und mobile Daten ab, wartet, bis die App selbst aufs GPS schaut (GPS-Prüfung
-# nach etwa 2 min, siehe docs/ORTUNG.md), und startet erst dann die Fahrt. Am Ende ist beides wieder an.
+# Skript nach dem Laden das WLAN ab, wartet, bis die App selbst aufs GPS schaut (GPS-Prüfung nach etwa
+# 2 min, siehe docs/ORTUNG.md), und startet erst dann die Fahrt. Die mobilen Daten bleiben an, damit die
+# App unterwegs Kartenbilder und Messstellen nachladen kann. Am Ende ist das WLAN wieder an.
+# Der Emulator meldet als Kurs immer Norden (geo fix kennt keinen Kurs). Deshalb führt die Strecke nach
+# Norden, sonst läge der Blitzer für die App nicht voraus.
 set -euo pipefail
 cd "$(dirname "$0")/../.."
 
@@ -44,9 +47,18 @@ sys.exit(f"nicht gefunden: {text}")
 PY
 }
 
+# Alle sichtbaren Texte (text und content-desc) aus dem Accessibility-Baum.
+ui_text() {
+  "$ADB" shell uiautomator dump /sdcard/sonarb-ui.xml > /dev/null
+  "$ADB" shell cat /sdcard/sonarb-ui.xml | grep -o -E '(text|content-desc)="[^"]+"' || true
+}
+
 # geo LAT LON [KNOTEN]: GPS-Fix mit Tempo, sonst erkennt die App keine Fahrt.
 geo() { "$ADB" emu geo fix "$2" "$1" 10 12 "${3:-0}" > /dev/null; }
 KMH=40
+# Aufnahmen nach so vielen Fixes (je 1 s): Ansage etwa 400 m vor dem Blitzer, Melden etwa 240 m davor.
+ANSAGE_BEI=86
+MELDEN_BEI=99
 KNOTEN=$(awk "BEGIN {printf \"%.1f\", $KMH / 1.852}")
 
 # Statusleiste neutral: 12:00, voller Akku, keine Benachrichtigungen.
@@ -63,6 +75,7 @@ cleanup() {
   "$ADB" shell svc wifi enable || true
   "$ADB" shell svc data enable || true
   "$ADB" shell settings put global sysui_demo_allowed "${DEMO_ALT:-0}" || true
+  if [ -n "${KEEP:-}" ]; then mkdir -p "$KEEP" && cp "$TMP"/*.png "$KEEP"/ 2> /dev/null || true; fi   # Rohbilder zum Nachsehen
   rm -rf "$TMP"
 }
 trap cleanup EXIT
@@ -104,19 +117,29 @@ sleep 4
 # Google fragt im Emulator manchmal nach der Standortgenauigkeit; ablehnen ändert nichts am System.
 tap_text "No thanks" 2> /dev/null || tap_text "Nein danke" 2> /dev/null || true
 for _ in 1 2 3 4 5 6 7 8 9 10; do geo "$LAT" "$LON"; sleep 1; done
-sleep 30   # Messstellen der Umgebung laden
-shot geladen
-"$ADB" shell uiautomator dump /sdcard/sonarb-ui.xml > /dev/null
-if "$ADB" shell cat /sdcard/sonarb-ui.xml | grep -q "Laden gescheitert"; then
-  echo "Blitzerdaten nicht geladen (Overpass nicht erreichbar?). Abbruch." >&2; exit 1
+# Messstellen der Umgebung laden. Ist Overpass überlastet, versucht die App es selbst erneut; deshalb
+# höchstens 15 min warten, bis sie weder lädt noch einen Fehlschlag oder veraltete Daten zeigt.
+geladen=
+for _ in $(seq 1 300); do
+  ui="$(ui_text)"
+  if ! grep -q -e "Lädt Blitzer" -e "Wartet auf Standort" -e "Laden gescheitert" -e "nicht aktuell" <<< "$ui"; then
+    geladen=1; break
+  fi
+  geo "$LAT" "$LON"
+  sleep 2
+done
+if [ -z "$geladen" ]; then
+  echo "Blitzerdaten nach 15 min nicht geladen (Overpass nicht erreichbar?). Abbruch." >&2; exit 1
 fi
+sleep 5
+shot geladen
 
-echo "=== Warten auf GPS-Prüfung (WLAN und Daten aus)"
+echo "=== Warten auf GPS-Prüfung (WLAN aus)"
 "$ADB" shell svc wifi disable
-"$ADB" shell svc data disable
 for _ in $(seq 1 180); do
   # Nur aktive Anfragen zählen, keine Zeilen aus dem Verlauf (die beginnen mit Datum).
-  if "$ADB" shell dumpsys location | grep -v -E "^ *[0-9]{2}-[0-9]{2} " \n      | grep "/$PKG/" | grep -q "Request\[@+1s.*HIGH_ACCURACY"; then
+  if "$ADB" shell dumpsys location | grep -v -E "^ *[0-9]{2}-[0-9]{2} " \
+      | grep "/$PKG/" | grep -q "Request\[@+1s.*HIGH_ACCURACY"; then
     echo "GPS-Abfrage aktiv"; break
   fi
   sleep 2
@@ -124,20 +147,20 @@ done
 
 echo "=== Fahrt"
 n=0
-while read -r LAT LON; do
+# Eigener Kanal für die Strecke: adb shell liest sonst die Standardeingabe leer.
+while read -r LAT LON <&3; do
   geo "$LAT" "$LON" "$KNOTEN"; sleep 1; n=$((n + 1))
   case $n in
-    30) shot ansage ;;
-    45) tap_text "Melden"; sleep 1; shot melden; "$ADB" shell input keyevent BACK ;;
+    "$ANSAGE_BEI") shot ansage
+        if grep -q "Laden gescheitert" <<< "$(ui_text)"; then
+          echo "Während der Fahrt fehlen Blitzerdaten. Abbruch." >&2; exit 1
+        fi ;;
+    "$MELDEN_BEI") tap_text "Melden"; sleep 1; shot melden; "$ADB" shell input keyevent BACK ;;
   esac
-done < "$TMP/fixes.txt"
+done 3< "$TMP/fixes.txt"
 
-echo "=== Bilder zusammensetzen"
-# Hero: Fahrt mit Ansage, Melden, Startbildschirm nebeneinander, je 540 px breit.
-ffmpeg -v error -y -i "$TMP/ansage.png" -i "$TMP/melden.png" -i "$TMP/start.png" \
-  -filter_complex "[0]scale=540:-1[a];[1]scale=540:-1[b];[2]scale=540:-1[c];[a][b][c]hstack=3,pad=iw+80:ih+60:40:30:color=0x0E1114" \
-  -frames:v 1 "$OUT/hero.png"
+echo "=== Bilder verkleinern"
 for name in ansage melden start; do
   ffmpeg -v error -y -i "$TMP/$name.png" -vf scale=540:-1 -frames:v 1 "$OUT/$name.png"
 done
-echo "Fertig: $OUT/hero.png und Einzelbilder. Jedes Bild vor dem Commit ansehen."
+echo "Fertig: ansage, melden und start in $OUT. Jedes Bild vor dem Commit ansehen."

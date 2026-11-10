@@ -81,12 +81,14 @@ sparsam, damit der Akku hält. Mehr dazu in [docs/ARCHITEKTUR.md](docs/ARCHITEKT
 
 <table>
   <tr>
-    <td><img src="docs/media/start.png" width="300" alt="Startbildschirm „Vor der ersten Fahrt“: wofür die App den Standort braucht, Betrieb bei ausgeschaltetem Bildschirm, Herkunft der Kartendaten und der Hinweis auf § 23 Abs. 1c StVO, darunter der Knopf „Weiter zur Standortfreigabe“."></td>
-    <td><img src="docs/media/melden.png" width="300" alt="Cockpit im Stand mit Karte, darüber das Blatt „Was melden?“ mit den Knöpfen Mobiler Blitzer, Abstandsmessung, Baustelle und Gefahrenstelle."></td>
+    <td><img src="docs/media/ansage.png" width="260" alt="Cockpit während der Fahrt mit 40 km/h: oben die gelbe Ansage „Fester Blitzer, Vorwarnung“ mit Tempo 50 und 400 m Abstand, darunter die geneigte Karte mit dem Blitzer auf der Strecke."></td>
+    <td><img src="docs/media/melden.png" width="260" alt="Dieselbe Fahrt 260 m vor dem Blitzer, darüber das Blatt „Was melden?“ mit den Knöpfen Mobiler Blitzer, Abstandsmessung, Baustelle und Gefahrenstelle."></td>
+    <td><img src="docs/media/start.png" width="260" alt="Startbildschirm „Vor der ersten Fahrt“: wofür die App den Standort braucht, Betrieb bei ausgeschaltetem Bildschirm, Herkunft der Kartendaten und der Hinweis auf § 23 Abs. 1c StVO, darunter der Knopf „Weiter zur Standortfreigabe“."></td>
   </tr>
 </table>
 
-<i>Erster Start und Melden-Blatt, aufgenommen im Emulator. Kartenbild © OpenStreetMap-Mitwirkende.</i>
+<i>Ansage vor einem festen Blitzer, Melden-Blatt und erster Start, aufgenommen im Emulator auf einer erfundenen
+Testfahrt. Kartenbild © OpenStreetMap-Mitwirkende.</i>
 
 ## Installation
 
@@ -129,6 +131,9 @@ Signaltöne.
   Standort. Die Ortung selbst läuft auf den meisten Geräten über die Google-Play-Dienste. Lädt man
   Tempolimit-Pakete, erhält GitHub (GitHub Inc., USA) die IP-Adresse und das gewählte Bundesland; diese
   Funktion folgt, sobald das Paket-Repository öffentlich ist.
+- **Navigation von Google Maps (aus, bis du es einschaltest):** Mit deiner Freigabe liest Sonarb den Text
+  der Navigationsmitteilung von Google Maps mit, nur im Arbeitsspeicher. Gespeichert oder gesendet wird
+  nichts, andere Apps liest Sonarb nicht.
 - **Was auf dem Gerät liegt:** Einstellungen, Zwischenspeicher der Kartendaten und Kartenbilder, deine
   Meldungen und die Fahrstatistik, alles im privaten Speicher der App.
 - **Alles löschen:** App deinstallieren oder in den Android-Einstellungen der App „Speicher löschen“.

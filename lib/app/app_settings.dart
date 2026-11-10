@@ -28,6 +28,7 @@ class AppSettings {
     this.heatSpotMinReports = defaultHeatSpotReports,
     this.detailRadiusMeters = 5000,
     this.countryCameras = false,
+    this.mapsNavigation = false,
   });
 
   /// Erste Ansage mindestens so weit vorher ([WarningSettings.announceMeters]).
@@ -70,6 +71,9 @@ class AppSettings {
   /// Zusätzlich feste Blitzer für ganz Deutschland ([DataScope.countryCameras]).
   final bool countryCameras;
 
+  /// Navigationsmitteilung von Google Maps mitlesen. Standard aus; braucht die Freigabe in Android.
+  final bool mapsNavigation;
+
   /// Wählbare Umkreise in Metern.
   static const detailRadiusChoices = <double>[5000, 10000, 25000, 50000];
 
@@ -90,6 +94,7 @@ class AppSettings {
   static const _kHeatSpotReports = 'settings.heatSpotMinReports';
   static const _kDetailRadius = 'settings.detailRadiusMeters';
   static const _kCountryCameras = 'settings.countryCameras';
+  static const _kMapsNavigation = 'settings.mapsNavigation';
 
   static AppSettings load(SharedPreferences p) {
     const d = AppSettings();
@@ -121,6 +126,7 @@ class AppSettings {
         detailRadiusChoices,
       ),
       countryCameras: p.getBool(_kCountryCameras) ?? d.countryCameras,
+      mapsNavigation: p.getBool(_kMapsNavigation) ?? d.mapsNavigation,
     );
   }
 
@@ -141,6 +147,7 @@ class AppSettings {
     await p.setInt(_kHeatSpotReports, heatSpotMinReports);
     await p.setDouble(_kDetailRadius, detailRadiusMeters);
     await p.setBool(_kCountryCameras, countryCameras);
+    await p.setBool(_kMapsNavigation, mapsNavigation);
   }
 
   /// Wählbare Abstände der ersten Ansage in Metern.
@@ -207,6 +214,7 @@ class AppSettings {
     await s.audio.setVoiceEnabled(voiceEnabled);
     await s.audio.setSilenced(audioSilenced);
     if (s.alerts.dataScope != dataScope) s.alerts.dataScope = dataScope;
+    await s.mapsNavigation.setEnabled(mapsNavigation);
   }
 
   AppSettings copyWith({
@@ -226,6 +234,7 @@ class AppSettings {
     int? heatSpotMinReports,
     double? detailRadiusMeters,
     bool? countryCameras,
+    bool? mapsNavigation,
   }) => AppSettings(
     announceMeters: announceMeters ?? this.announceMeters,
     reminderEnabled: reminderEnabled ?? this.reminderEnabled,
@@ -243,6 +252,7 @@ class AppSettings {
     heatSpotMinReports: heatSpotMinReports ?? this.heatSpotMinReports,
     detailRadiusMeters: detailRadiusMeters ?? this.detailRadiusMeters,
     countryCameras: countryCameras ?? this.countryCameras,
+    mapsNavigation: mapsNavigation ?? this.mapsNavigation,
   );
 
   /// Schaltet [a] an ([on] = true) oder ab.

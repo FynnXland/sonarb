@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../app/app_settings.dart';
 import '../../app/theme.dart';
+import 'maps_nav_tile.dart';
 import 'settings_layout.dart';
 import 'warning_controls.dart';
 
@@ -109,6 +110,7 @@ class WarningSection extends ConsumerWidget {
           value: s.hotspotsEnabled,
           onChanged: (v) => ctrl.change((x) => x.copyWith(hotspotsEnabled: v)),
         ),
+        const MapsNavTile(),
         SettingsGroup(
           id: 'warning-more',
           title: 'Mehr',

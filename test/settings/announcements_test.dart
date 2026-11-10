@@ -35,6 +35,8 @@ void main() {
     await pump(tester, const SettingsScreen());
     await tester.scrollUntilVisible(find.text('Sprachansagen'), 100);
     expect(find.text('An, alle Sätze'), findsOneWidget);
+    await tester.ensureVisible(find.text('Sprachansagen'));
+    await tester.pumpAndSettle();
     await tester.tap(find.text('Sprachansagen'));
     await tester.pumpAndSettle();
     expect(find.byType(AnnouncementsScreen), findsOneWidget);
