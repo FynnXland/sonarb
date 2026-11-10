@@ -21,8 +21,7 @@ Future<void> quitApp(WidgetRef ref) async {
   await SystemNavigator.pop();
 }
 
-/// Aus-Knopf unten rechts unter dem OSM-Hinweis: beendet Sonarb mit einem Tipp.
-/// Unten rechts, weil oben links die Hinweise der Karte stehen.
+/// Aus-Knopf oben rechts links neben „⋯“: beendet Sonarb mit einem Tipp.
 class QuitButton extends ConsumerWidget {
   const QuitButton({super.key});
 

@@ -749,7 +749,15 @@ class _DriveMapState extends ConsumerState<DriveMap>
               Positioned(
                 top: SonarSpace.s,
                 right: SonarSpace.s,
-                child: const MapMenuButton(),
+                // Aus-Knopf links neben „⋯“; der Hinweis oben links lässt dafür Platz.
+                child: const Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    QuitButton(),
+                    SizedBox(width: SonarSpace.s),
+                    MapMenuButton(),
+                  ],
+                ),
               ),
               if (_ready)
                 Positioned(
@@ -770,7 +778,7 @@ class _DriveMapState extends ConsumerState<DriveMap>
                 Positioned(
                   top: SonarSpace.s,
                   left: SonarSpace.s,
-                  // Platz für den Schalter rechts daneben.
+                  // Platz für Aus-Knopf und „⋯“ rechts daneben (2 × 48 + Abstände).
                   width: (box.maxWidth - 160).clamp(140.0, 320.0),
                   child: Align(
                     alignment: Alignment.topLeft,

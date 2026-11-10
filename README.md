@@ -81,7 +81,7 @@ sparsam, damit der Akku hält. Mehr dazu in [docs/ARCHITEKTUR.md](docs/ARCHITEKT
 
 <table>
   <tr>
-    <td><img src="docs/media/ansage.png" width="260" alt="Cockpit während der Fahrt mit 40 km/h: oben die gelbe Ansage „Fester Blitzer, Vorwarnung“ mit Tempo 50 und 400 m Abstand, darunter die geneigte Karte mit dem Blitzer auf der Strecke."></td>
+    <td><img src="docs/media/ansage.png" width="260" alt="Cockpit während der Fahrt mit 40 km/h und Tempolimit 50, darunter die gelbe Ansage „Fester Blitzer, Vorwarnung“ mit 400 m Abstand und die geneigte Karte mit dem Blitzer auf der Strecke."></td>
     <td><img src="docs/media/melden.png" width="260" alt="Dieselbe Fahrt 260 m vor dem Blitzer, darüber das Blatt „Was melden?“ mit den Knöpfen Mobiler Blitzer, Abstandsmessung, Baustelle und Gefahrenstelle."></td>
     <td><img src="docs/media/start.png" width="260" alt="Startbildschirm „Vor der ersten Fahrt“: wofür die App den Standort braucht, Betrieb bei ausgeschaltetem Bildschirm, Herkunft der Kartendaten und der Hinweis auf § 23 Abs. 1c StVO, darunter der Knopf „Weiter zur Standortfreigabe“."></td>
   </tr>
@@ -119,7 +119,7 @@ Signaltöne.
 | Wann angesagt wird | Einstellungen → Warnung → „Ansage ab“ (Standard 600 m, bei hohem Tempo früher) |
 | Sätze einzeln abschalten | Einstellungen → „Sprachansagen“ |
 | Karte ausrichten | Menü „⋯“ auf der Karte: Norden oder Fahrtrichtung oben, flach oder geneigt |
-| Sonarb ganz beenden | Aus-Knopf unten rechts auf der Karte, oder „Beenden“ in der Benachrichtigung |
+| Sonarb ganz beenden | Aus-Knopf oben rechts auf der Karte, links neben „⋯“, oder „Beenden“ in der Benachrichtigung |
 
 ## Datenschutz und deine Daten
 

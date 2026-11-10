@@ -102,16 +102,15 @@ void main() {
     expect(platformCalls, contains('SystemNavigator.pop'));
   });
 
-  testWidgets('Aus-Knopf unten rechts unter dem OSM-Hinweis, nicht im Menü', (
-    tester,
-  ) async {
+  testWidgets('Aus-Knopf links neben „⋯“, nicht im Menü', (tester) async {
     await pumpMap(tester);
     final quit = tester.getRect(find.byTooltip('Sonarb beenden'));
-    final osm = tester.getRect(find.text('© OpenStreetMap-Mitwirkende'));
-    expect(quit.top, greaterThanOrEqualTo(osm.bottom));
-    expect(quit.right, greaterThan(360 - 60));
-    expect(quit.bottom, greaterThan(640 - 70));
+    final menu = tester.getRect(find.byTooltip('Kartenoptionen'));
+    expect(quit.right, lessThanOrEqualTo(menu.left));
+    expect(menu.left - quit.right, lessThan(20));
+    expect((quit.center.dy - menu.center.dy).abs(), lessThan(1));
     expect(quit.width, greaterThanOrEqualTo(48));
+    expect(quit.height, greaterThanOrEqualTo(48));
     await tester.tap(find.byTooltip('Kartenoptionen'));
     await tester.pump();
     await tester.pump(const Duration(milliseconds: 400));
