@@ -6,7 +6,10 @@ import 'package:sonarb/core/contracts/hotspot_repository.dart';
 import 'package:sonarb/core/geo/geo.dart';
 import 'package:sonarb/features/settings/hotspot_files.dart';
 import 'package:sonarb/features/settings/hotspots_screen.dart';
+import 'package:sonarb/app/legal.dart';
+import 'package:sonarb/features/settings/settings_pages.dart';
 import 'package:sonarb/features/settings/settings_screen.dart';
+import 'package:sonarb/features/settings/sources_section.dart';
 
 import '../cockpit/fakes.dart';
 
@@ -117,7 +120,7 @@ void main() {
     await tester.tap(find.widgetWithText(TextButton, 'Löschen'));
     await tester.pumpAndSettle();
     expect(rig.hotspots.items, isEmpty);
-    expect(find.textContaining('Noch keine Hotspots'), findsOneWidget);
+    expect(find.textContaining('Noch keine eigenen Meldungen'), findsOneWidget);
   });
 
   testWidgets('Bearbeiten: Art, Notiz, Richtung löschen', (tester) async {
@@ -142,20 +145,26 @@ void main() {
   testWidgets('Einstellungen: ohne Zusatzquellen kein Plugin-Hinweis', (
     tester,
   ) async {
-    await pump(tester, const SettingsScreen());
-    await tester.scrollUntilVisible(find.text('OSM-Cache'), 200);
-    expect(find.text('2,0 MB'), findsOneWidget);
+    await pump(tester, const DataScreen());
+    await tester.scrollUntilVisible(find.text(osmCacheTitle), 200);
+    expect(find.textContaining('2,0 MB'), findsOneWidget);
     expect(find.textContaining('Plugin'), findsNothing);
     expect(find.text('Zusatzquelle'), findsNothing);
   });
 
   testWidgets('Über: Datenschutz und Lizenzen öffnen sich', (tester) async {
     await pump(tester, const SettingsScreen());
+    final about = find.text('Über Sonarb');
+    await tester.scrollUntilVisible(about, 200);
+    await tester.tap(about);
+    await tester.pumpAndSettle();
     final privacy = find.text('Datenschutz');
     await tester.scrollUntilVisible(privacy, 200);
     await tester.ensureVisible(privacy);
     await tester.pumpAndSettle();
-    expect(find.textContaining('§ 23 Abs. 1c StVO'), findsOneWidget);
+    // Der kurze Hinweis und der zum Schalter, beide mit der Vorschrift.
+    expect(find.text(stvoNotice), findsOneWidget);
+    expect(find.text(enforcementNotice), findsOneWidget);
     expect(find.text('Sonarb · Version 1.0.0'), findsOneWidget);
 
     await tester.tap(privacy);
@@ -176,6 +185,8 @@ void main() {
 
   testWidgets('Stumm wird gespeichert und an den Ton gegeben', (tester) async {
     await pump(tester, const SettingsScreen());
+    await tester.tap(find.text('Ton und Sprache'));
+    await tester.pumpAndSettle();
     await tester.scrollUntilVisible(find.text('Stumm'), 100);
     await tester.ensureVisible(find.text('Stumm'));
     await tester.pumpAndSettle();
@@ -183,6 +194,9 @@ void main() {
     await tester.pumpAndSettle();
     expect(rig.audio.muted, isTrue);
     expect(rig.prefs.getBool('settings.muted'), isTrue);
+    await tester.pageBack();
+    await tester.pumpAndSettle();
+    expect(find.widgetWithText(ListTile, 'Stumm'), findsOneWidget);
   });
 
   test('Dateiname des Exports', () {
@@ -206,14 +220,12 @@ void main() {
         onRetryGoogleAccuracy: () => retries++,
       ),
     );
-    await tester.scrollUntilVisible(
-      find.text('Erneut anfragen'),
-      200,
-      scrollable: find.byType(Scrollable).first,
-    );
-    await tester.ensureVisible(find.text('Erneut anfragen'));
-    await tester.pumpAndSettle();
+    // Ganz oben, über allem anderen: hier muss man etwas tun.
     expect(find.text('Ortung ohne Google-Standortgenauigkeit'), findsOneWidget);
+    expect(
+      tester.getRect(find.text('Erneut anfragen')).top,
+      lessThan(tester.getRect(find.text('Blitzer-Funktionen')).top),
+    );
     await tester.tap(find.text('Erneut anfragen'));
     expect(retries, 1);
   });

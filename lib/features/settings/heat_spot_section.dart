@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import '../../app/app_settings.dart';
 import 'settings_screen.dart' show SectionHeader;
 import '../../app/theme.dart';
-import 'warning_controls.dart' show SettingsExplainer;
+import 'warning_controls.dart' show SettingsExplainer, settingsSubtitle;
 
 String heatSpotTitle(HeatSpotAlert a) => switch (a) {
   HeatSpotAlert.off => 'Aus',
@@ -26,7 +26,7 @@ String heatSpotReportsText(int n) =>
 
 String _reportsShort(int n) => n <= 1 ? 'Jede' : 'Ab $n';
 
-/// Auswahl unter „Sprachansagen“: wie Sonarb vor Stellen warnt, an denen früher geblitzt
+/// Auswahl unter „Warnungen“: wie Sonarb vor Stellen warnt, an denen früher geblitzt
 /// wurde, und ab wie vielen Meldungen eine Stelle zählt (für Ton und Karte).
 class HeatSpotSection extends StatelessWidget {
   const HeatSpotSection({
@@ -95,8 +95,11 @@ class HeatSpotSection extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Text('Welche Stellen', style: SonarText.label),
-            Text(heatSpotReportsText(minReports), style: SonarText.small),
+            Text(
+              'Welche Stellen',
+              style: Theme.of(context).textTheme.bodyLarge,
+            ),
+            Text(heatSpotReportsText(minReports), style: settingsSubtitle),
             const SizedBox(height: SonarSpace.s),
             SegmentedButton<int>(
               showSelectedIcon: false,
@@ -117,7 +120,7 @@ class HeatSpotSection extends StatelessWidget {
             const Text(
               'Gezählt werden frühere Meldungen im Umkreis von 300 m, jede gleich, '
               'egal wie alt. Gilt auch für die Karte.',
-              style: SonarText.small,
+              style: settingsSubtitle,
             ),
           ],
         ),

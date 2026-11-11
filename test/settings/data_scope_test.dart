@@ -6,6 +6,7 @@ import 'package:sonarb/app/theme.dart';
 import 'package:sonarb/core/contracts/alert_repository.dart';
 import 'package:sonarb/core/contracts/data_source_plugin.dart';
 import 'package:sonarb/features/settings/data_scope_tiles.dart';
+import 'package:sonarb/features/settings/settings_pages.dart';
 import 'package:sonarb/features/settings/settings_screen.dart';
 import 'package:sonarb/features/settings/warning_controls.dart';
 
@@ -91,6 +92,11 @@ void main() {
       ),
     );
     await tester.pumpAndSettle();
+    // Die Übersicht nennt den Umkreis, die Seite „Daten und Quellen“ hat die Regler.
+    await tester.scrollUntilVisible(find.text('Daten und Quellen'), 200);
+    expect(find.text('5 km um die Position'), findsOneWidget);
+    await tester.tap(find.text('Daten und Quellen'));
+    await tester.pumpAndSettle();
     await tester.scrollUntilVisible(
       find.text('Blitzer für ganz Deutschland'),
       200,
@@ -115,4 +121,28 @@ void main() {
     expect(rig.alerts.dataScope.detailRadiusMeters, 25000);
     expect(find.text('25 km um die Position'), findsOneWidget);
   });
+
+  testWidgets(
+    'ohne Blitzer-Funktionen: kein Deutschland-Schalter, nichts geladen',
+    (tester) async {
+      await rig.prefs.setBool('settings.countryCameras', true);
+      await rig.prefs.setBool('settings.enforcementFeatures', false);
+      tester.view.physicalSize = const Size(360, 900);
+      tester.view.devicePixelRatio = 1;
+      addTearDown(tester.view.reset);
+      await tester.pumpWidget(
+        ProviderScope(
+          overrides: rig.overrides,
+          child: MaterialApp(
+            theme: buildSonarTheme(),
+            home: const DataScreen(),
+          ),
+        ),
+      );
+      await tester.pumpAndSettle();
+      expect(find.text('Umkreis für Daten'), findsOneWidget);
+      expect(find.text('Blitzer für ganz Deutschland'), findsNothing);
+      expect(AppSettings.load(rig.prefs).dataScope.countryCameras, isFalse);
+    },
+  );
 }

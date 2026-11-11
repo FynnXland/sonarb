@@ -14,6 +14,7 @@ import '../../app/theme.dart';
 import '../../core/geo/geo.dart';
 import '../../core/contracts/alert_repository.dart';
 import '../../core/model/alert_point.dart';
+import '../../core/model/enforcement.dart';
 import 'data_coverage.dart';
 import 'drive_controller.dart';
 import 'drive_state.dart';
@@ -216,14 +217,27 @@ class _DriveMapState extends ConsumerState<DriveMap>
     if (!mounted) return;
     setState(() {
       _fetchedAround = center;
-      _points = ref
-          .read(servicesProvider)
-          .alerts
-          // Mit den vergangenen Beobachtungen: daraus kommen Wärme, rote Punkte und Hotspots.
-          // Ohne sie fehlten die drei beim Mitfahren ganz.
-          .pointsAround(center, radiusMeters: _pointsRadius, withHistory: true);
+      _points = _visible(
+        ref
+            .read(servicesProvider)
+            .alerts
+            // Mit den vergangenen Beobachtungen: daraus kommen Wärme, rote Punkte und Hotspots.
+            // Ohne sie fehlten die drei beim Mitfahren ganz.
+            .pointsAround(
+              center,
+              radiusMeters: _pointsRadius,
+              withHistory: true,
+            ),
+      );
     });
   }
+
+  /// Ohne Blitzer-Funktionen keine Blitzer, Kontrollen und vergangenen Beobachtungen: damit
+  /// fehlen auch Pins, Wärme-Ebene und Blitzer-Hotspots.
+  List<AlertPoint> _visible(List<AlertPoint> points) => filterEnforcement(
+    points,
+    enforcement: ref.read(appSettingsProvider).enforcementFeatures,
+  );
 
   /// Holt die Punkte neu: beim Mitführen rund um die Position, sonst für den sichtbaren
   /// Ausschnitt (Übersicht).
@@ -243,10 +257,11 @@ class _DriveMapState extends ConsumerState<DriveMap>
     );
     final alerts = ref.read(servicesProvider).alerts;
     final coverage = alerts.coverageInView(view);
-    final next = alerts.pointsInView(view);
+    final next = _visible(alerts.pointsInView(view));
     setState(() {
       _points = keepWhileLoading(
-        previous: _points,
+        // Auch das Behaltene: nach dem Ausschalten bleibt kein Blitzer stehen.
+        previous: _visible(_points),
         next: next,
         view: view,
         ready: coverage.state == CoverageState.ready,
@@ -535,6 +550,10 @@ class _DriveMapState extends ConsumerState<DriveMap>
     ref.listen(appSettingsProvider.select((s) => s.headingUp), (_, up) {
       _follow(ref.read(driveControllerProvider), up);
     });
+    ref.listen(
+      appSettingsProvider.select((s) => s.enforcementFeatures),
+      (_, _) => _refresh(),
+    );
     _syncTilt(
       wantsTilt(drive: drive, settings: settings, following: _following),
     );

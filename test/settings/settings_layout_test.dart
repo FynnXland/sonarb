@@ -14,6 +14,8 @@ import 'package:sonarb/features/settings/announcements_screen.dart';
 import 'package:sonarb/features/settings/hotspots_screen.dart';
 import 'package:sonarb/features/settings/legend_screen.dart';
 import 'package:sonarb/features/settings/map_layers_screen.dart';
+import 'package:sonarb/features/settings/enforcement_tile.dart';
+import 'package:sonarb/features/settings/settings_pages.dart';
 import 'package:sonarb/features/settings/settings_screen.dart';
 import 'package:sonarb/features/settings/sources_section.dart';
 import 'package:sonarb/features/settings/warning_section.dart';
@@ -28,37 +30,45 @@ const _gestureBar = 48.0;
 
 void main() {
   group('Texte', () {
-    test('Ablauf folgt den Einstellungen', () {
+    test('Ablauf in einem Satz, folgt den Einstellungen', () {
       const s = AppSettings();
-      expect(warningFlow(s), [
-        'Vor jeder Messstelle kommt eine Ansage mit Piep, mindestens 600 m vorher, '
-            'bei schneller Fahrt 30 s vorher.',
-        'Bist du mehr als 3 km/h zu schnell, piept es zweimal, solange Ausrollen '
-            'noch reicht, und kurz vor der Stelle schnell hintereinander.',
-        'Ist das Limit unbekannt oder gilt keins (Autobahn), bleibt es bei der '
-            'Ansage.',
-      ]);
       expect(
-        warningFlow(s.copyWith(onlyWhenSpeeding: false, reminderEnabled: false))
-            .last,
-        'Danach piept es bei jedem Tempo kurz vor der Stelle schnell hintereinander.',
+        warningFlow(s),
+        'Mindestens 600 m vor jeder Messstelle kommt eine Ansage mit Signalton. '
+        'Weitere Signaltöne nur, wenn du zu schnell bist.',
       );
       expect(
-        warningFlow(s.copyWith(overspeedToleranceKmh: 0))[1],
-        startsWith('Bist du zu schnell, piept es zweimal'),
+        warningFlow(s.copyWith(onlyWhenSpeeding: false, announceMeters: 1500)),
+        'Mindestens 1,5 km vor jeder Messstelle kommt eine Ansage mit Signalton, '
+        'danach Signaltöne bei jedem Tempo.',
+      );
+      expect(
+        warningFlow(s.copyWith(enforcementFeatures: false)),
+        'Mindestens 600 m vor Baustellen und Gefahren kommt eine Ansage mit '
+        'Signalton. Die Blitzer-Funktionen sind aus.',
       );
     });
 
-    test('Zeile unter „Mehr“', () {
+    test('Kurzfassungen der Übersicht: höchstens zwei Angaben, kurz', () {
       const s = AppSettings();
-      expect(
-        warningMoreSummary(s),
-        'Piepe zum Ausrollen frühestens 250 m vorher',
-      );
-      expect(
-        warningMoreSummary(s.copyWith(reminderEnabled: false)),
-        'Ohne Piepe zum Ausrollen',
-      );
+      final lines = {
+        warningSummary(s): '600 m vorher · ab +3 km/h',
+        warningSummary(s.copyWith(overspeedToleranceKmh: 0)):
+            '600 m vorher · ab dem Limit',
+        warningSummary(s.copyWith(onlyWhenSpeeding: false)):
+            '600 m vorher · Signalton immer',
+        warningSummary(s.copyWith(enforcementFeatures: false)):
+            '600 m vorher · ohne Blitzer',
+        soundSummary(s): '100 % · Sprachansagen an',
+        soundSummary(s.copyWith(voiceEnabled: false, volume: 0.6)):
+            '60 % · nur Signaltöne',
+        soundSummary(s.copyWith(muted: true)): 'Stumm',
+      };
+      for (final MapEntry(key: actual, value: expected) in lines.entries) {
+        expect(actual, expected);
+        expect(actual.length, lessThanOrEqualTo(32), reason: actual);
+        expect('·'.allMatches(actual).length, lessThanOrEqualTo(1));
+      }
     });
 
     test('Stand einer Quelle in einer Zeile', () {
@@ -122,70 +132,102 @@ void main() {
     }
 
     testWidgets(
-      'Warnung: Ablauf und Regler direkt sichtbar, Feines unter Mehr',
+      'Übersicht: Blitzer-Schalter oben, dann die Gruppen, keine Regler',
       (tester) async {
+        tester.view.physicalSize = const Size(360, 2400);
         await pump(tester, const SettingsScreen());
-        expect(
-          find.textContaining('Vor jeder Messstelle kommt eine Ansage'),
-          findsOneWidget,
-        );
-        expect(find.text('Ansage ab'), findsOneWidget);
-        expect(
-          find.text('Piepen nur, wenn ich zu schnell bin'),
-          findsOneWidget,
-        );
-        expect(find.text('Piepe zum Ausrollen'), findsNothing);
-        await tester.ensureVisible(find.text('Mehr'));
+        tester.view.physicalSize = const Size(360, 2400);
         await tester.pumpAndSettle();
-        await tester.tap(find.text('Mehr'));
-        await tester.pumpAndSettle();
-        await tester.scrollUntilVisible(find.text('Piepe zum Ausrollen'), 200);
-        expect(find.text('Piepe zum Ausrollen'), findsOneWidget);
+        const order = [
+          'Blitzer-Funktionen',
+          'Unterwegs',
+          'Warnungen',
+          'Ton und Sprache',
+          'Karte',
+          'Daten und App',
+          'Fahrstatistik',
+          'Eigene Meldungen',
+          'Daten und Quellen',
+          'Google Maps (Probe)',
+          'Über Sonarb',
+        ];
+        final ys = [for (final t in order) tester.getRect(find.text(t)).top];
+        expect(ys, [...ys]..sort());
+        // Details liegen eine Ebene tiefer: auf der Übersicht kein Regler, kein Aufklappen.
+        expect(find.byType(Slider), findsNothing);
+        expect(find.byType(ExpansionTile), findsNothing);
+        expect(find.byType(SwitchListTile), findsOneWidget);
       },
     );
 
-    testWidgets('Ton und Sprache ohne Aufklappen', (tester) async {
-      await pump(tester, const SettingsScreen());
-      await tester.scrollUntilVisible(find.text('Stumm'), 200);
-      expect(find.text('Lautstärke'), findsOneWidget);
-      expect(find.text('Sprachansagen'), findsOneWidget);
-    });
-
-    testWidgets('Daten: Schalter direkt, darunter die Übersicht mit Cache', (
+    testWidgets('Ton und Sprache: Lautstärke, darunter gleich Stumm', (
       tester,
     ) async {
+      await pump(tester, const SoundScreen());
+      final volume = tester.getRect(find.text('Lautstärke')).top;
+      final mute = tester.getRect(find.text('Stumm')).top;
+      final voice = tester.getRect(find.text('Sprachansagen')).top;
+      expect(volume, lessThan(mute));
+      expect(mute, lessThan(voice));
+    });
+
+    testWidgets(
+      'Daten und Quellen: Schalter, darunter der Stand mit Kartendaten',
+      (tester) async {
+        await pump(tester, const DataScreen());
+        await tester.scrollUntilVisible(find.text('Umkreis für Daten'), 200);
+        expect(find.text('Blitzer für ganz Deutschland'), findsOneWidget);
+        await tester.scrollUntilVisible(find.text(osmCacheTitle), 200);
+        expect(find.text('Stand der Quellen'), findsOneWidget);
+        expect(find.text('Eigene Hotspots'), findsOneWidget);
+        expect(find.text('Leeren'), findsOneWidget);
+      },
+    );
+
+    testWidgets('Quelle mit Fehler: Übersicht zeigt es in der Zeile', (
+      tester,
+    ) async {
+      rig.alerts.statuses = [_s('OpenStreetMap', PluginStatus.error)];
       await pump(tester, const SettingsScreen());
-      await tester.scrollUntilVisible(find.text('Umkreis für Daten'), 200);
-      expect(find.text('Blitzer für ganz Deutschland'), findsOneWidget);
-      await tester.scrollUntilVisible(find.text('OSM-Cache'), 200);
-      expect(find.text('Stand der Quellen'), findsOneWidget);
-      expect(find.text('Eigene Hotspots'), findsOneWidget);
-      expect(find.text('Leeren'), findsOneWidget);
+      await tester.scrollUntilVisible(find.text('Daten und Quellen'), 200);
+      expect(find.text('OpenStreetMap: Fehler'), findsOneWidget);
     });
 
     testWidgets('Über: Version mit Build', (tester) async {
-      await pump(tester, const SettingsScreen());
-      await tester.scrollUntilVisible(find.textContaining('Sonarb ·'), 300);
+      await pump(tester, const AboutScreen());
+      expect(find.textContaining('Sonarb ·'), findsOneWidget);
       expect(find.textContaining('Version'), findsWidgets);
     });
 
-    testWidgets('„Mehr“ bleibt offen, solange die App läuft', (tester) async {
-      final container = ProviderContainer(overrides: rig.overrides);
-      addTearDown(container.dispose);
-      await pump(tester, const SettingsScreen(), container: container);
-      await tester.ensureVisible(find.text('Mehr'));
+    testWidgets('Blitzer-Schalter: Unterzeile folgt, Übersicht und Speicher', (
+      tester,
+    ) async {
+      await pump(tester, const SettingsScreen());
+      expect(find.text(enforcementSubtitle(on: true)), findsOneWidget);
+      await tester.tap(find.text('Blitzer-Funktionen'));
       await tester.pumpAndSettle();
-      await tester.tap(find.text('Mehr'));
-      await tester.pumpAndSettle();
-      await tester.scrollUntilVisible(find.text('Piepe zum Ausrollen'), 200);
-      expect(find.text('Piepe zum Ausrollen'), findsOneWidget);
-
-      // Einstellungen verlassen und wieder öffnen.
-      await tester.pumpWidget(const SizedBox());
-      await pump(tester, const SettingsScreen(), container: container);
-      await tester.scrollUntilVisible(find.text('Piepe zum Ausrollen'), 200);
-      expect(find.text('Piepe zum Ausrollen'), findsOneWidget);
+      expect(find.text(enforcementSubtitle(on: false)), findsOneWidget);
+      expect(find.text('600 m vorher · ohne Blitzer'), findsOneWidget);
+      expect(rig.prefs.getBool('settings.enforcementFeatures'), isFalse);
+      expect(find.byIcon(Icons.no_photography_outlined), findsOneWidget);
     });
+
+    testWidgets(
+      'Tippziele der Übersicht mindestens 48 hoch, bei Schrift 1 und 2',
+      (tester) async {
+        for (final scale in [1.0, 2.0]) {
+          await pump(tester, const SettingsScreen(), textScale: scale);
+          for (final tile in tester.widgetList<ListTile>(
+            find.byType(ListTile),
+          )) {
+            final size = tester.getSize(find.byWidget(tile));
+            expect(size.height, greaterThanOrEqualTo(48), reason: '$scale');
+          }
+          expect(tester.takeException(), isNull);
+          await tester.pumpWidget(const SizedBox());
+        }
+      },
+    );
 
     /// Scrollt ganz nach unten und prüft, dass [last] über der Gesten-Leiste endet.
     Future<void> expectReachable(
@@ -205,9 +247,12 @@ void main() {
 
     for (final scale in [1.0, 2.0]) {
       testWidgets(
-        'Einstellungen bei Schrift $scale: Lizenzen ganz erreichbar',
+        'Einstellungen bei Schrift $scale: letzte Zeile ganz erreichbar',
         (tester) async {
           await pump(tester, const SettingsScreen(), textScale: scale);
+          await expectReachable(tester, find.text('Über Sonarb'));
+          await tester.pumpWidget(const SizedBox());
+          await pump(tester, const AboutScreen(), textScale: scale);
           await expectReachable(tester, find.text('Lizenzen'));
         },
       );
@@ -222,6 +267,10 @@ void main() {
           find.text(announcementTitle(announcementGroups.last.$2.last)),
         ),
         (const MapLayersScreen(), find.text(MapLayer.values.last.label)),
+        (const WarningScreen(), find.text('Ab 3')),
+        (const SoundScreen(), find.text('Sprachansagen')),
+        (const DataScreen(), find.text('Leeren')),
+        (const MapsNavScreen(), find.text('Navigation von Google Maps nutzen')),
         (
           LegendScreen(
             symbol: (c, {speed, required size}) =>

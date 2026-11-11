@@ -205,9 +205,7 @@ ThemeData buildSonarTheme() {
       contentTextStyle: TextStyle(color: SonarColors.text, fontSize: 15),
       behavior: SnackBarBehavior.floating,
     ),
-    listTileTheme: const ListTileThemeData(
-      iconColor: SonarColors.textMuted,
-      textColor: SonarColors.text,
-    ),
+    // Ohne eigene Textfarbe: Titel in onSurface, Unterzeilen in onSurfaceVariant (grau).
+    listTileTheme: const ListTileThemeData(iconColor: SonarColors.textMuted),
   );
 }

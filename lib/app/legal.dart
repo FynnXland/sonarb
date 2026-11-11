@@ -11,11 +11,22 @@ const stvoNotice =
     'In Deutschland darf, wer ein Fahrzeug führt, keine Blitzerwarnung nutzen, '
     'auch nicht per App (§ 23 Abs. 1c StVO).';
 
+/// Hinweis unter dem Schalter „Blitzer-Funktionen“ (§ 23 Abs. 1c Satz 3 StVO: Bei Geräten mit
+/// mehreren Zwecken dürfen die Funktionen, die Verkehrsüberwachung anzeigen, nicht verwendet
+/// werden). Bewusst vorsichtig: keine Zusage, keine Rechtsberatung.
+const enforcementNotice =
+    'In Deutschland darf, wer ein Fahrzeug führt, Funktionen nicht verwenden, die '
+    'Blitzer oder andere Verkehrskontrollen anzeigen (§ 23 Abs. 1c StVO). Schalte '
+    'sie vor der Fahrt in den Einstellungen unter „Blitzer-Funktionen“ aus. Ob die '
+    'App damit in deinem Fall erlaubt ist, kann Sonarb nicht zusagen. Das ist keine '
+    'Rechtsberatung.';
+
 /// Ein Abschnitt der Datenschutzhinweise.
 typedef PrivacySection = ({String title, String body});
 
-/// Datenschutzhinweise in der App. Die Datenschutzerklärung auf der Website (fynn.land) sagt
-/// inhaltlich dasselbe; beide gleich halten.
+/// Datenschutzhinweise in der App. Die Datenschutzerklärung auf der Website
+/// (https://fynn.land/datenschutz-sonarb, Text in docs/DATENSCHUTZ.md) sagt inhaltlich dasselbe;
+/// beide gleich halten.
 const privacySections = <PrivacySection>[
   (
     title: 'Kurz',
@@ -41,7 +52,8 @@ const privacySections = <PrivacySection>[
         'Diese Server erhalten dabei die IP-Adresse des Geräts und den Kartenausschnitt '
         'rund um den Standort. Für deren Verarbeitung gelten ihre eigenen Datenschutzhinweise. '
         'Geladene Daten bleiben als Zwischenspeicher auf dem Gerät und lassen sich in den '
-        'Einstellungen unter „OSM-Cache“ löschen. Die Kartenbilder liegen im Cache-Ordner '
+        'Einstellungen unter „Daten und Quellen“ → „Gespeicherte Kartendaten“ löschen. '
+        'Die Kartenbilder liegen im Cache-Ordner '
         'der App (bis etwa 1 GB); Android kann ihn jederzeit leeren, „Cache leeren“ in den '
         'Android-Einstellungen der App löscht ihn sofort.',
   ),
@@ -77,7 +89,7 @@ const privacySections = <PrivacySection>[
         'Navigationsmitteilung von Google Maps, etwa „In 300 m rechts auf B72“. Der Text bleibt '
         'nur im Arbeitsspeicher des Telefons, wird nicht gespeichert und nicht übertragen. '
         'Mitteilungen anderer Apps liest Sonarb nicht. Ausschalten lässt es sich in den '
-        'Einstellungen unter „Warnung“; den Zugriff kann man jederzeit in den '
+        'Einstellungen unter „Google Maps (Probe)“; den Zugriff kann man jederzeit in den '
         'Android-Einstellungen entziehen.',
   ),
   (

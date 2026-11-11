@@ -3,12 +3,14 @@ import 'dart:async';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../app/app_settings.dart';
 import '../../app/services.dart';
 import '../../core/contracts/alert_audio.dart';
 import '../../core/contracts/alert_repository.dart';
 import '../../core/contracts/data_source_plugin.dart';
 import '../../core/contracts/warning_engine.dart';
 import '../../core/geo/geo.dart';
+import '../../core/model/enforcement.dart';
 import '../../core/model/position_fix.dart';
 import '../../core/model/road_limit.dart';
 import '../stats/trip_log.dart';
@@ -310,9 +312,15 @@ class DriveController extends Notifier<DriveState> {
 
   Future<void> _process(PositionFix fix, int session) async {
     final s = _services;
-    final points = s.alerts.pointsAround(
-      fix.position,
-      withHistory: s.engine.settings.heatSpotsEnabled,
+    // Ohne Blitzer-Funktionen erreicht kein Blitzer und keine Kontrolle die Warnlogik: keine
+    // Warnung, keine Ansage, kein Ton, nichts im Hinweisfeld.
+    final enforcement = ref.read(appSettingsProvider).enforcementFeatures;
+    final points = filterEnforcement(
+      s.alerts.pointsAround(
+        fix.position,
+        withHistory: enforcement && s.engine.settings.heatSpotsEnabled,
+      ),
+      enforcement: enforcement,
     );
     var road = const RoadLimit.unknown();
     try {

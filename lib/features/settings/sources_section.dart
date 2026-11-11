@@ -7,6 +7,10 @@ import '../../core/contracts/alert_repository.dart';
 import '../../core/contracts/data_source_plugin.dart';
 import 'data_scope_tiles.dart';
 import 'format.dart';
+import 'warning_controls.dart';
+
+/// Zeile für den Zwischenspeicher der OSM-Daten.
+const osmCacheTitle = 'Gespeicherte Kartendaten';
 
 final sourceStatusProvider = StreamProvider<List<SourceStatus>>(
   (ref) => ref.watch(servicesProvider).alerts.watchStatus(),
@@ -85,7 +89,7 @@ class _SourcesOverviewState extends ConsumerState<SourcesOverview> {
     final ok = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('OSM-Cache leeren?'),
+        title: const Text('Gespeicherte Kartendaten leeren?'),
         content: const Text(
           'Blitzer und Tempolimits werden bei der nächsten Fahrt neu geladen. '
           'Ohne Netz fehlen sie bis dahin.',
@@ -150,13 +154,12 @@ class _SourcesOverviewState extends ConsumerState<SourcesOverview> {
               AsyncSnapshot(:final data?) => formatBytes(data),
               _ => 'wird berechnet',
             };
-            return ListTile(
-              title: const Text('OSM-Cache'),
-              subtitle: Text(text),
-              trailing: TextButton(
-                onPressed: _clearing ? null : _clearCache,
-                child: const Text('Leeren'),
-              ),
+            return SettingsActionTile(
+              title: osmCacheTitle,
+              subtitle:
+                  '$text. Blitzer, Ampeln und Tempolimits aus OpenStreetMap',
+              action: 'Leeren',
+              onPressed: _clearing ? null : _clearCache,
             );
           },
         ),
@@ -183,25 +186,28 @@ class _StatusRow extends StatelessWidget {
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Padding(
-              padding: const EdgeInsets.only(top: 2),
-              child: Icon(
-                error ? Icons.error_outline : Icons.storage_outlined,
-                size: 18,
-                color: error ? SonarColors.red : SonarColors.textMuted,
+            // Ein Symbol nur bei Fehler: dann trägt es eine Nachricht.
+            if (error) ...[
+              const Padding(
+                padding: EdgeInsets.only(top: 2),
+                child: Icon(
+                  Icons.error_outline,
+                  size: 18,
+                  color: SonarColors.red,
+                ),
               ),
-            ),
-            const SizedBox(width: SonarSpace.m),
+              const SizedBox(width: SonarSpace.m),
+            ],
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(s.name, style: SonarText.label),
-                  Text(sourceLine(s), style: SonarText.small),
+                  Text(s.name, style: Theme.of(context).textTheme.bodyLarge),
+                  Text(sourceLine(s), style: settingsSubtitle),
                   if (s.message != null)
                     Text(
                       s.message!,
-                      style: SonarText.small.copyWith(
+                      style: settingsSubtitle.copyWith(
                         color: error ? SonarColors.red : SonarColors.textMuted,
                       ),
                     ),
@@ -226,6 +232,6 @@ class _Note extends StatelessWidget {
       horizontal: SonarSpace.l,
       vertical: SonarSpace.s,
     ),
-    child: Text(text, style: SonarText.small),
+    child: Text(text, style: settingsSubtitle),
   );
 }

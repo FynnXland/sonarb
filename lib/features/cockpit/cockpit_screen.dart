@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../app/app_settings.dart';
 import '../../app/services.dart';
 import '../../app/theme.dart';
 import 'cockpit_controls.dart';
@@ -242,6 +243,9 @@ class _InstrumentsFrame extends ConsumerWidget {
             coverage: ref.watch(coverageAroundProvider),
             still: driving,
             extraRows: extraRows,
+            enforcement: ref.watch(
+              appSettingsProvider.select((s) => s.enforcementFeatures),
+            ),
             onOpen: (p) => showPointSheet(context, [p]),
           ),
         ],
@@ -286,6 +290,9 @@ class _Instruments extends ConsumerWidget {
           height: bandHeight,
           coverage: ref.watch(coverageAroundProvider),
           still: driving,
+          enforcement: ref.watch(
+            appSettingsProvider.select((s) => s.enforcementFeatures),
+          ),
           onOpen: (p) => showPointSheet(context, [p]),
         ),
       ],

@@ -16,11 +16,29 @@ class CockpitStatusBar extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final drive = ref.watch(driveControllerProvider);
     final muted = ref.watch(appSettingsProvider.select((s) => s.muted));
+    final enforcement = ref.watch(
+      appSettingsProvider.select((s) => s.enforcementFeatures),
+    );
     return SizedBox(
       height: 56,
       child: Row(
         children: [
-          Expanded(child: GpsIndicator(drive: drive)),
+          Expanded(
+            child: Row(
+              children: [
+                Flexible(child: GpsIndicator(drive: drive)),
+                if (!enforcement) ...[
+                  const SizedBox(width: SonarSpace.m),
+                  const Expanded(
+                    child: Align(
+                      alignment: Alignment.centerLeft,
+                      child: EnforcementOffBadge(),
+                    ),
+                  ),
+                ],
+              ],
+            ),
+          ),
           Semantics(
             toggled: !muted,
             label: muted ? 'Ton aus' : 'Ton an',
@@ -50,6 +68,55 @@ class CockpitStatusBar extends ConsumerWidget {
             icon: const Icon(Icons.settings),
           ),
         ],
+      ),
+    );
+  }
+}
+
+/// Steht in der Kopfzeile, solange die Blitzer-Funktionen aus sind: Wer nichts gemeldet
+/// bekommt, soll nicht glauben, es gebe keine Blitzer. Reicht der Platz nicht für den Text
+/// (schmales Telefon, große Schrift), bleibt das durchgestrichene Kamera-Symbol; abgeschnitten
+/// wird nichts.
+class EnforcementOffBadge extends StatelessWidget {
+  const EnforcementOffBadge({super.key});
+
+  static const label = 'Blitzer aus';
+  static const _icon = 20.0;
+
+  @override
+  Widget build(BuildContext context) {
+    final style = SonarText.label.copyWith(color: SonarColors.amber);
+    return Semantics(
+      label: 'Blitzer-Funktionen sind aus',
+      excludeSemantics: true,
+      child: Tooltip(
+        message: 'Blitzer-Funktionen sind aus',
+        child: LayoutBuilder(
+          builder: (context, box) {
+            final text = TextPainter(
+              text: TextSpan(text: label, style: style),
+              textDirection: TextDirection.ltr,
+              textScaler: MediaQuery.textScalerOf(context),
+              maxLines: 1,
+            )..layout();
+            final fits = _icon + SonarSpace.xs + text.width <= box.maxWidth;
+            text.dispose();
+            return Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                const Icon(
+                  Icons.no_photography_outlined,
+                  size: _icon,
+                  color: SonarColors.amber,
+                ),
+                if (fits) ...[
+                  const SizedBox(width: SonarSpace.xs),
+                  Text(label, maxLines: 1, softWrap: false, style: style),
+                ],
+              ],
+            );
+          },
+        ),
       ),
     );
   }

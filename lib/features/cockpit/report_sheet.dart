@@ -3,7 +3,8 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 
 import '../../app/theme.dart';
-import '../../core/model/hotspot_kind.dart';
+import '../../core/model/alert_point.dart';
+import '../../core/model/enforcement.dart';
 import 'format.dart';
 
 /// So lange bleibt das Auswahlblatt offen, wenn niemand etwas wählt.
@@ -17,6 +18,12 @@ const reportKinds = [
   HotspotKind.danger,
 ];
 
+/// Die Arten im Blatt; ohne Blitzer-Funktionen fehlen mobiler Blitzer und Abstandsmessung.
+List<HotspotKind> reportKindsFor({required bool enforcement}) => [
+  for (final k in reportKinds)
+    if (enforcement || !reportKindIsEnforcement(k)) k,
+];
+
 IconData reportKindIcon(HotspotKind kind) => switch (kind) {
   HotspotKind.mobileCamera => Icons.photo_camera,
   HotspotKind.distanceCheck => Icons.straighten,
@@ -25,17 +32,22 @@ IconData reportKindIcon(HotspotKind kind) => switch (kind) {
 };
 
 /// Öffnet das Auswahlblatt. Ergebnis null bei Abbrechen oder Zeitablauf.
-Future<HotspotKind?> showReportSheet(BuildContext context) =>
-    showModalBottomSheet<HotspotKind>(
-      context: context,
-      isScrollControlled: true,
-      backgroundColor: SonarColors.surface,
-      builder: (_) => const ReportSheet(),
-    );
+Future<HotspotKind?> showReportSheet(
+  BuildContext context, {
+  List<HotspotKind> kinds = reportKinds,
+}) => showModalBottomSheet<HotspotKind>(
+  context: context,
+  isScrollControlled: true,
+  backgroundColor: SonarColors.surface,
+  builder: (_) => ReportSheet(kinds: kinds),
+);
 
 /// Große Kacheln, damit man sie im Auto trifft, und ein großes Abbrechen.
 class ReportSheet extends StatefulWidget {
-  const ReportSheet({super.key});
+  const ReportSheet({super.key, this.kinds = reportKinds});
+
+  /// Kacheln zu zweit nebeneinander; bei ungerader Zahl steht die letzte allein.
+  final List<HotspotKind> kinds;
 
   @override
   State<ReportSheet> createState() => _ReportSheetState();
@@ -68,12 +80,14 @@ class _ReportSheetState extends State<ReportSheet> {
         children: [
           const Text('Was melden?', style: SonarText.warningKind),
           const SizedBox(height: SonarSpace.m),
-          for (var i = 0; i < reportKinds.length; i += 2) ...[
+          for (var i = 0; i < widget.kinds.length; i += 2) ...[
             Row(
               children: [
-                Expanded(child: _KindTile(kind: reportKinds[i])),
-                const SizedBox(width: SonarSpace.m),
-                Expanded(child: _KindTile(kind: reportKinds[i + 1])),
+                Expanded(child: _KindTile(kind: widget.kinds[i])),
+                if (i + 1 < widget.kinds.length) ...[
+                  const SizedBox(width: SonarSpace.m),
+                  Expanded(child: _KindTile(kind: widget.kinds[i + 1])),
+                ],
               ],
             ),
             const SizedBox(height: SonarSpace.m),

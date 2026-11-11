@@ -2,124 +2,96 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../app/app_settings.dart';
+import '../../app/services.dart';
 import '../../app/theme.dart';
-import 'maps_nav_tile.dart';
+import '../../core/contracts/alert_audio.dart';
+import 'heat_spot_section.dart';
 import 'settings_layout.dart';
 import 'warning_controls.dart';
 
-/// Was vor einer Messstelle passiert, in der Reihenfolge, in der es passiert. Folgt den
-/// Einstellungen, damit der Text nie etwas verspricht, das abgeschaltet ist.
-List<String> warningFlow(AppSettings s) {
-  final tolerance = s.overspeedToleranceKmh;
-  final tooFast = tolerance == 0
-      ? 'Bist du zu schnell'
-      : 'Bist du mehr als $tolerance km/h zu schnell';
-  final beeps = s.reminderEnabled
-      ? 'zweimal, solange Ausrollen noch reicht, und kurz vor der Stelle '
-            'schnell hintereinander'
-      : 'kurz vor der Stelle schnell hintereinander';
-  return [
-    'Vor jeder Messstelle kommt eine Ansage mit Piep, mindestens '
-        '${distanceText(s.announceMeters)} vorher, bei schneller Fahrt 30 s vorher.',
-    if (s.onlyWhenSpeeding) ...[
-      '$tooFast, piept es $beeps.',
-      'Ist das Limit unbekannt oder gilt keins (Autobahn), bleibt es bei der '
-          'Ansage.',
-    ] else
-      'Danach piept es bei jedem Tempo $beeps.',
-  ];
+/// Ein Satz über der Seite: was vor einer Stelle passiert. Folgt den Einstellungen, damit der
+/// Text nie etwas verspricht, das abgeschaltet ist.
+String warningFlow(AppSettings s) {
+  final at = distanceText(s.announceMeters);
+  if (!s.enforcementFeatures) {
+    return 'Mindestens $at vor Baustellen und Gefahren kommt eine Ansage mit '
+        'Signalton. Die Blitzer-Funktionen sind aus.';
+  }
+  return s.onlyWhenSpeeding
+      ? 'Mindestens $at vor jeder Messstelle kommt eine Ansage mit Signalton. '
+            'Weitere Signaltöne nur, wenn du zu schnell bist.'
+      : 'Mindestens $at vor jeder Messstelle kommt eine Ansage mit Signalton, '
+            'danach Signaltöne bei jedem Tempo.';
 }
 
-/// Eingeklappte Zeile unter „Mehr“.
-String warningMoreSummary(AppSettings s) => s.reminderEnabled
-    ? 'Piepe zum Ausrollen frühestens ${distanceText(s.reminderMeters)} vorher'
-    : 'Ohne Piepe zum Ausrollen';
+/// „ab +3 km/h“, „ab dem Limit“.
+String toleranceShort(int kmh) => kmh == 0 ? 'ab dem Limit' : 'ab +$kmh km/h';
 
-/// Abschnitt „Warnung“: oben der Ablauf in Worten, darunter die wenigen Regler, die man
-/// braucht. Die Feinheit der Ausroll-Piepe liegt unter „Mehr“.
-class WarningSection extends ConsumerWidget {
-  const WarningSection({super.key});
+/// Kurzfassung auf der Übersicht, höchstens zwei Angaben.
+String warningSummary(AppSettings s) {
+  final at = '${distanceText(s.announceMeters)} vorher';
+  if (!s.enforcementFeatures) return '$at · ohne Blitzer';
+  return s.onlyWhenSpeeding
+      ? '$at · ${toleranceShort(s.overspeedToleranceKmh)}'
+      : '$at · Signalton immer';
+}
+
+/// Unterseite „Warnungen“: wann und wie oft Sonarb sich meldet. Ohne Blitzer-Funktionen fehlt
+/// alles, was nur Messstellen betrifft.
+class WarningScreen extends ConsumerWidget {
+  const WarningScreen({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final s = ref.watch(appSettingsProvider);
     final ctrl = ref.read(appSettingsProvider.notifier);
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.stretch,
-      children: [
-        Padding(
-          padding: const EdgeInsets.fromLTRB(
-            SonarSpace.l,
-            0,
-            SonarSpace.l,
-            SonarSpace.s,
+    final audio = ref.read(servicesProvider).audio;
+    final cameras = s.enforcementFeatures;
+    return Scaffold(
+      appBar: AppBar(title: const Text('Warnungen')),
+      body: ListView(
+        padding: pageListPadding(context, top: SonarSpace.s),
+        children: [
+          Semantics(container: true, child: SettingsExplainer(warningFlow(s))),
+          ChoiceSliderTile(
+            title: 'Ansage ab',
+            valueText:
+                '${distanceText(s.announceMeters)} vorher, '
+                'bei schneller Fahrt 30 s',
+            choices: AppSettings.announceChoices,
+            value: s.announceMeters,
+            onChanged: (v) => ctrl.change((x) => x.copyWith(announceMeters: v)),
           ),
-          child: Semantics(
-            container: true,
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                for (final line in warningFlow(s))
-                  Padding(
-                    padding: const EdgeInsets.only(bottom: SonarSpace.xs),
-                    child: Text(
-                      line,
-                      style: SonarText.small.copyWith(
-                        color: SonarColors.text,
-                        height: 1.35,
-                      ),
-                    ),
-                  ),
-              ],
+          if (cameras)
+            SwitchListTile(
+              title: const Text('Signalton nur, wenn ich zu schnell bin'),
+              subtitle: Text(
+                s.onlyWhenSpeeding
+                    ? 'Sonst und ohne bekanntes Limit bleibt es bei der Ansage'
+                    : 'Die Signaltöne kommen bei jedem Tempo',
+              ),
+              value: s.onlyWhenSpeeding,
+              onChanged: (v) =>
+                  ctrl.change((x) => x.copyWith(onlyWhenSpeeding: v)),
+            ),
+          ValueSliderTile(
+            title: 'Zu schnell ab',
+            valueText: s.overspeedToleranceKmh == 0
+                ? 'Sobald das Limit überschritten ist'
+                : '${s.overspeedToleranceKmh} km/h über dem Limit',
+            value: s.overspeedToleranceKmh.clamp(0, 10).toDouble(),
+            min: 0,
+            max: 10,
+            divisions: 10,
+            onChanged: (v) => ctrl.change(
+              (x) => x.copyWith(overspeedToleranceKmh: v.round()),
             ),
           ),
-        ),
-        ChoiceSliderTile(
-          title: 'Ansage ab',
-          valueText:
-              '${distanceText(s.announceMeters)} vor der Messstelle, '
-              'bei schneller Fahrt 30 s',
-          choices: AppSettings.announceChoices,
-          value: s.announceMeters,
-          onChanged: (v) => ctrl.change((x) => x.copyWith(announceMeters: v)),
-        ),
-        SwitchListTile(
-          title: const Text('Piepen nur, wenn ich zu schnell bin'),
-          subtitle: Text(
-            s.onlyWhenSpeeding
-                ? 'Bei passendem Tempo bleibt es bei der Ansage'
-                : 'Die Piepe kommen bei jedem Tempo',
-          ),
-          value: s.onlyWhenSpeeding,
-          onChanged: (v) => ctrl.change((x) => x.copyWith(onlyWhenSpeeding: v)),
-        ),
-        ValueSliderTile(
-          title: 'Zu schnell ab',
-          valueText: s.overspeedToleranceKmh == 0
-              ? 'Sobald das Limit überschritten ist'
-              : '${s.overspeedToleranceKmh} km/h über dem Limit',
-          value: s.overspeedToleranceKmh.clamp(0, 10).toDouble(),
-          min: 0,
-          max: 10,
-          divisions: 10,
-          onChanged: (v) =>
-              ctrl.change((x) => x.copyWith(overspeedToleranceKmh: v.round())),
-        ),
-        SwitchListTile(
-          title: const Text('Vor eigenen Hotspots warnen'),
-          value: s.hotspotsEnabled,
-          onChanged: (v) => ctrl.change((x) => x.copyWith(hotspotsEnabled: v)),
-        ),
-        const MapsNavTile(),
-        SettingsGroup(
-          id: 'warning-more',
-          title: 'Mehr',
-          summary: warningMoreSummary(s),
-          children: [
+          if (cameras) ...[
             SwitchListTile(
-              title: const Text('Piepe zum Ausrollen'),
+              title: const Text('Signalton zum Ausrollen'),
               subtitle: const Text(
-                'Zwei Piepe, solange Gas wegnehmen bis zur Stelle noch reicht',
+                'Zwei Signaltöne, solange Gas wegnehmen bis zur Stelle reicht',
               ),
               value: s.reminderEnabled,
               onChanged: (v) =>
@@ -127,9 +99,9 @@ class WarningSection extends ConsumerWidget {
             ),
             if (s.reminderEnabled)
               ChoiceSliderTile(
-                title: 'Piepe zum Ausrollen frühestens',
+                title: 'Ausrollen frühestens',
                 valueText:
-                    '${distanceText(s.reminderMeters)} vor der Messstelle, '
+                    '${distanceText(s.reminderMeters)} vorher, '
                     'bei schneller Fahrt früher',
                 choices: AppSettings.reminderChoices,
                 value: s.reminderMeters,
@@ -137,8 +109,28 @@ class WarningSection extends ConsumerWidget {
                     ctrl.change((x) => x.copyWith(reminderMeters: v)),
               ),
           ],
-        ),
-      ],
+          SwitchListTile(
+            title: const Text('Vor eigenen Meldungen warnen'),
+            subtitle: const Text('Stellen, die du über „Melden“ gesetzt hast'),
+            value: s.hotspotsEnabled,
+            onChanged: (v) =>
+                ctrl.change((x) => x.copyWith(hotspotsEnabled: v)),
+          ),
+          if (cameras)
+            HeatSpotSection(
+              value: s.heatSpotAlert,
+              minReports: s.heatSpotMinReports,
+              voiceEnabled: s.voiceEnabled,
+              onChanged: (v) =>
+                  ctrl.change((x) => x.copyWith(heatSpotAlert: v)),
+              onMinReports: (v) =>
+                  ctrl.change((x) => x.copyWith(heatSpotMinReports: v)),
+              onPreview: (v) => v == HeatSpotAlert.speech
+                  ? audio.preview(Announcement.heatSpot)
+                  : audio.play(WarningSound.heatSpotPreview),
+            ),
+        ],
+      ),
     );
   }
 }

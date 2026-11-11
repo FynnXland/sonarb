@@ -42,6 +42,12 @@ void main() {
     expect(headers, overpassUserAgent);
   });
 
+  test('User-Agent nennt Projekt und Kontakt (Regeln von private.coffee)', () {
+    expect(overpassUserAgent, startsWith('Sonarb/'));
+    expect(overpassUserAgent, contains('https://fynn.land/sonarb/'));
+    expect(overpassUserAgent, contains('kontakt@fynnland.xyz'));
+  });
+
   test('echte Anfrage mit dem User-Agent geht raus (Kopfzeile gültig)', () async {
     // Der MockClient prüft keine Kopfzeilen; erst dart:io lehnt Nicht-ASCII ab.
     final server = await HttpServer.bind(InternetAddress.loopbackIPv4, 0);

@@ -81,7 +81,7 @@ class _HotspotsScreenState extends ConsumerState<HotspotsScreen> {
     final ok = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('Hotspot löschen?'),
+        title: const Text('Meldung löschen?'),
         content: Text(
           '${hotspotKindLabel(h.kind)} vom ${formatDate(h.createdAt)}. '
           'Lässt sich nicht rückgängig machen.',
@@ -121,7 +121,7 @@ class _HotspotsScreenState extends ConsumerState<HotspotsScreen> {
     final list = ref.watch(hotspotListProvider);
     final hasItems = list.asData?.value.isNotEmpty ?? false;
     return Scaffold(
-      appBar: AppBar(title: const Text('Hotspots')),
+      appBar: AppBar(title: const Text('Eigene Meldungen')),
       body: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
@@ -187,7 +187,7 @@ class _HotspotsScreenState extends ConsumerState<HotspotsScreen> {
               AsyncError(:final error) => Padding(
                 padding: const EdgeInsets.all(SonarSpace.l),
                 child: Text(
-                  'Hotspots nicht lesbar: $error',
+                  'Meldungen nicht lesbar: $error',
                   style: SonarText.label.copyWith(color: SonarColors.red),
                 ),
               ),
@@ -207,7 +207,7 @@ class _Empty extends StatelessWidget {
   Widget build(BuildContext context) => const Padding(
     padding: EdgeInsets.all(SonarSpace.l),
     child: Text(
-      'Noch keine Hotspots. Im Cockpit „Hotspot setzen“ tippen '
+      'Noch keine eigenen Meldungen. Im Cockpit „Melden“ tippen '
       'oder eine Exportdatei importieren.',
       style: SonarText.small,
     ),

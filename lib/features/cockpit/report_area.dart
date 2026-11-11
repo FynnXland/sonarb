@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../app/app_settings.dart';
 import '../../app/theme.dart';
+import '../../core/model/hotspot_kind.dart';
 import '../../core/model/position_fix.dart';
 import 'drive_controller.dart';
 import 'format.dart';
@@ -66,7 +68,16 @@ class ReportArea extends ConsumerWidget {
       child: FilledButton(
         onPressed: fix == null || saving
             ? null
-            : () => _report(context, controller, fix),
+            : () => _report(
+                context,
+                controller,
+                fix,
+                reportKindsFor(
+                  enforcement: ref
+                      .read(appSettingsProvider)
+                      .enforcementFeatures,
+                ),
+              ),
         style: FilledButton.styleFrom(
           backgroundColor: SonarColors.hotspot,
           foregroundColor: SonarColors.onSignal,
@@ -101,8 +112,9 @@ class ReportArea extends ConsumerWidget {
     BuildContext context,
     HotspotTapController controller,
     PositionFix fix,
+    List<HotspotKind> kinds,
   ) async {
-    final kind = await showReportSheet(context);
+    final kind = await showReportSheet(context, kinds: kinds);
     if (kind != null) await controller.report(fix, kind);
   }
 }

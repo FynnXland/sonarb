@@ -24,9 +24,13 @@ class UpcomingPanel extends StatelessWidget {
     this.still = false,
     this.onOpen,
     this.extraRows = upcomingExtraRows,
+    this.enforcement = true,
   });
 
   final List<ActiveWarning> upcoming;
+
+  /// Blitzer-Funktionen an; aus steht das in der leeren Zeile.
+  final bool enforcement;
 
   /// Wie viele weitere Punkte klein darunter stehen; auf engen Bildschirmen weniger.
   final int extraRows;
@@ -57,7 +61,12 @@ class UpcomingPanel extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           if (first == null)
-            _Empty(height: height, coverage: coverage, still: still)
+            _Empty(
+              height: height,
+              coverage: coverage,
+              still: still,
+              enforcement: enforcement,
+            )
           else
             _Lead(
               first,
@@ -71,8 +80,46 @@ class UpcomingPanel extends StatelessWidget {
   }
 }
 
-/// Text der leeren Zeile je Ladestand: (Hauptzeile, Zusatz, lädt gerade).
-(String, String?, bool) emptyUpcomingText(DataCoverage? coverage) =>
+/// Text der leeren Zeile je Ladestand: (Hauptzeile, Zusatz, lädt gerade). Ohne
+/// Blitzer-Funktionen ([enforcement] aus) sagt der Zusatz das, damit „nichts voraus“ nicht nach
+/// „kein Blitzer voraus“ klingt.
+(String, String?, bool) emptyUpcomingText(
+  DataCoverage? coverage, {
+  bool enforcement = true,
+}) => enforcement
+    ? _emptyWithCameras(coverage)
+    : switch (coverage?.state) {
+        null => ('Wartet auf Standort', enforcementOffLine, true),
+        CoverageState.loading => (
+          'Lädt Daten der Umgebung',
+          enforcementOffLine,
+          true,
+        ),
+        CoverageState.failed => (
+          'Keine Daten für diese Gegend',
+          'Laden gescheitert, neuer Versuch folgt',
+          false,
+        ),
+        CoverageState.stale => (
+          enforcementOffEmpty,
+          'Blitzer aus · Daten nicht aktuell',
+          false,
+        ),
+        CoverageState.ready || CoverageState.tooWide => (
+          enforcementOffEmpty,
+          enforcementOffLine,
+          false,
+        ),
+      };
+
+/// Leeres Hinweisfeld ohne Blitzer-Funktionen. Nicht „Nichts voraus“: Das klänge nach „kein
+/// Blitzer voraus“, obwohl Sonarb dann gar nicht nach Blitzern sieht.
+const enforcementOffEmpty = 'Keine Baustelle oder Gefahr voraus';
+
+/// Zusatz im Hinweisfeld ohne Blitzer-Funktionen.
+const enforcementOffLine = 'Blitzer-Funktionen sind aus';
+
+(String, String?, bool) _emptyWithCameras(DataCoverage? coverage) =>
     switch (coverage?.state) {
       null => ('Wartet auf Standort', null, true),
       CoverageState.loading => ('Lädt Blitzer in der Umgebung', null, true),
@@ -95,15 +142,20 @@ class _Empty extends StatelessWidget {
     required this.height,
     required this.coverage,
     required this.still,
+    required this.enforcement,
   });
 
   final double height;
   final DataCoverage? coverage;
   final bool still;
+  final bool enforcement;
 
   @override
   Widget build(BuildContext context) {
-    final (title, detail, loading) = emptyUpcomingText(coverage);
+    final (title, detail, loading) = emptyUpcomingText(
+      coverage,
+      enforcement: enforcement,
+    );
     final failed = coverage?.state == CoverageState.failed;
     return Semantics(
       liveRegion: true,
@@ -125,6 +177,13 @@ class _Empty extends StatelessWidget {
               const SizedBox(width: SonarSpace.m),
             ] else if (failed) ...[
               const Icon(Icons.cloud_off, size: 20, color: SonarColors.text),
+              const SizedBox(width: SonarSpace.m),
+            ] else if (!enforcement) ...[
+              const Icon(
+                Icons.no_photography_outlined,
+                size: 20,
+                color: SonarColors.amber,
+              ),
               const SizedBox(width: SonarSpace.m),
             ],
             Expanded(

@@ -3,22 +3,23 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../app/app_info.dart';
 import '../../app/app_settings.dart';
-import '../../app/legal.dart';
 import '../../app/map_layer_settings.dart';
-import '../../app/privacy_screen.dart';
 import '../../app/theme.dart';
-import '../osm/limit_download.dart' show limitPackagesPublished;
+import '../../core/contracts/data_source_plugin.dart';
 import '../stats/stats_entry.dart';
-import 'announcements_screen.dart';
+import 'data_scope_tiles.dart';
+import 'enforcement_tile.dart';
 import 'hotspots_screen.dart';
-import 'limit_packages_tile.dart';
 import 'legend_screen.dart';
 import 'map_layers_screen.dart';
 import 'settings_layout.dart';
-import 'warning_section.dart';
+import 'settings_pages.dart';
 import 'sources_section.dart';
 import 'warning_controls.dart';
+import 'warning_section.dart';
 
+/// Übersicht: oben der Blitzer-Schalter, darunter wenige Zeilen, jede mit dem aktuellen Stand
+/// in einer Zeile. Details liegen eine Ebene tiefer; Häufiges oben, Seltenes unten.
 class SettingsScreen extends ConsumerWidget {
   const SettingsScreen({
     super.key,
@@ -29,7 +30,7 @@ class SettingsScreen extends ConsumerWidget {
     this.onRetryGoogleAccuracy,
   });
 
-  /// Kartensymbol je Ebene für die Seite „Kartenebenen“, von `app/` hereingereicht.
+  /// Kartensymbol je Ebene für die Seite „Karte“, von `app/` hereingereicht.
   final MapLayerSymbolBuilder? mapLayerSymbol;
 
   /// Kartensymbol je Art für die Legende, ebenfalls von `app/`. Ohne gibt es keinen Eintrag.
@@ -47,115 +48,111 @@ class SettingsScreen extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final s = ref.watch(appSettingsProvider);
-    final ctrl = ref.read(appSettingsProvider.notifier);
     final layers = ref.watch(mapLayersProvider);
+    final version =
+        ref.watch(appVersionProvider).value ?? appVersionFallbackLabel;
+    final retry = onRetryGoogleAccuracy;
     return Scaffold(
       appBar: AppBar(title: const Text('Einstellungen')),
       body: ListView(
-        padding: pageListPadding(context),
+        padding: pageListPadding(context, top: SonarSpace.s),
         children: [
-          const SectionHeader('Warnung'),
-          const WarningSection(),
-          const SectionHeader('Ton und Sprache'),
-          ValueSliderTile(
-            title: 'Lautstärke',
-            valueText: '${(s.volume * 100).round()} % der Medienlautstärke',
-            value: s.volume.clamp(0, 1).toDouble(),
-            min: 0,
-            max: 1,
-            divisions: 10,
-            onChanged: (v) => ctrl.change((x) => x.copyWith(volume: v)),
+          // Hier muss man etwas tun: deshalb ganz oben.
+          if (googleAccuracyDeclined && retry != null)
+            SettingsActionTile(
+              icon: Icons.gps_not_fixed,
+              title: 'Ortung ohne Google-Standortgenauigkeit',
+              subtitle:
+                  'Mit Google findet die App den Standort schneller und braucht '
+                  'im Stand weniger Akku.',
+              action: 'Erneut anfragen',
+              onPressed: retry,
+            ),
+          const EnforcementTile(),
+          const SectionHeader('Unterwegs'),
+          SettingsLinkTile(
+            icon: Icons.notifications_active_outlined,
+            title: 'Warnungen',
+            subtitle: warningSummary(s),
+            page: (_) => const WarningScreen(),
           ),
-          ListTile(
-            leading: const Icon(Icons.record_voice_over_outlined),
-            title: const Text('Sprachansagen'),
-            subtitle: Text(voiceSummary(s)),
-            trailing: const Icon(Icons.chevron_right),
-            onTap: () => Navigator.of(context).push<void>(
-              MaterialPageRoute(builder: (_) => const AnnouncementsScreen()),
+          SettingsLinkTile(
+            icon: s.muted
+                ? Icons.volume_off_outlined
+                : Icons.volume_up_outlined,
+            title: 'Ton und Sprache',
+            subtitle: soundSummary(s),
+            page: (_) => const SoundScreen(),
+          ),
+          SettingsLinkTile(
+            icon: Icons.layers_outlined,
+            title: 'Karte',
+            subtitle: mapSummary(layers, s),
+            page: (_) => MapLayersScreen(
+              symbol: mapLayerSymbol,
+              categorySymbol: categorySymbol,
+              limitSign: limitSign,
             ),
           ),
-          SwitchListTile(
-            title: const Text('Stumm'),
-            subtitle: const Text('Keine Signaltöne, Anzeige bleibt'),
-            value: s.muted,
-            onChanged: (v) => ctrl.change((x) => x.copyWith(muted: v)),
-          ),
-          const SectionHeader('Karte'),
-          ListTile(
-            leading: const Icon(Icons.layers_outlined),
-            title: const Text('Kartenebenen'),
-            subtitle: Text(mapLayersSummary(layers)),
-            trailing: const Icon(Icons.chevron_right),
-            onTap: () => Navigator.of(context).push<void>(
-              MaterialPageRoute(
-                builder: (_) => MapLayersScreen(symbol: mapLayerSymbol),
-              ),
-            ),
-          ),
-          if (categorySymbol != null)
-            ListTile(
-              leading: const Icon(Icons.info_outline),
-              title: const Text('Legende'),
-              subtitle: const Text('Was die Symbole auf der Karte bedeuten'),
-              trailing: const Icon(Icons.chevron_right),
-              onTap: () => Navigator.of(context).push<void>(
-                MaterialPageRoute(
-                  builder: (_) => LegendScreen(
-                    symbol: categorySymbol!,
-                    limitSign: limitSign,
-                  ),
-                ),
-              ),
-            ),
-          SwitchListTile(
-            title: const Text('Karte bei Fahrt neigen'),
-            subtitle: const Text(
-              'Mit Fahrtrichtung oben: Blick schräg nach vorn',
-            ),
-            value: s.tiltWhileDriving,
-            onChanged: (v) =>
-                ctrl.change((x) => x.copyWith(tiltWhileDriving: v)),
-          ),
-          if (googleAccuracyDeclined && onRetryGoogleAccuracy != null) ...[
-            const SectionHeader('Ortung'),
-            ListTile(
-              leading: const Icon(Icons.gps_not_fixed),
-              title: const Text('Ortung ohne Google-Standortgenauigkeit'),
-              subtitle: const Text(
-                'Mit Google findet die App den Standort schneller und braucht im Stand weniger Akku.',
-              ),
-              trailing: TextButton(
-                onPressed: onRetryGoogleAccuracy,
-                child: const Text('Erneut anfragen'),
-              ),
-            ),
-          ],
-          const SectionHeader('Fahrten'),
+          const SectionHeader('Daten und App'),
           const StatsEntryTile(),
-          const SectionHeader('Hotspots'),
-          ListTile(
-            leading: const Icon(Icons.place_outlined),
-            title: const Text('Hotspots verwalten'),
-            subtitle: const Text('Liste, bearbeiten, Import und Export'),
-            trailing: const Icon(Icons.chevron_right),
-            onTap: () => Navigator.of(context).push<void>(
-              MaterialPageRoute(builder: (_) => const HotspotsScreen()),
-            ),
+          SettingsLinkTile(
+            icon: Icons.place_outlined,
+            title: 'Eigene Meldungen',
+            subtitle: 'Liste, bearbeiten, Import und Export',
+            page: (_) => const HotspotsScreen(),
           ),
-          const SectionHeader('Daten'),
-          const SourceSwitches(),
-          if (limitPackagesPublished) const LimitPackagesTile(),
-          const SectionHeader('Stand der Quellen'),
-          const SourcesOverview(),
-          const SectionHeader('Über'),
-          const _About(),
+          const _DataLink(),
+          SettingsLinkTile(
+            icon: Icons.navigation_outlined,
+            title: 'Google Maps (Probe)',
+            subtitle: s.mapsNavigation
+                ? 'An: liest Navigationshinweise'
+                : 'Aus',
+            page: (_) => const MapsNavScreen(),
+          ),
+          SettingsLinkTile(
+            icon: Icons.info_outline,
+            title: 'Über Sonarb',
+            subtitle: '$version · Datenschutz, Lizenzen',
+            page: (_) => const AboutScreen(),
+          ),
         ],
       ),
     );
   }
 }
 
+/// Zeile „Daten und Quellen“: der Umkreis, bei einem Fehler stattdessen die Quelle in Rot.
+class _DataLink extends ConsumerWidget {
+  const _DataLink();
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final radius = ref.watch(
+      appSettingsProvider.select((s) => s.detailRadiusMeters),
+    );
+    final failed = ref
+        .watch(sourceStatusProvider)
+        .value
+        ?.where((s) => s.status == PluginStatus.error)
+        .map((s) => s.name)
+        .toList();
+    final hasError = failed != null && failed.isNotEmpty;
+    return SettingsLinkTile(
+      icon: hasError ? Icons.error_outline : Icons.storage_outlined,
+      title: 'Daten und Quellen',
+      subtitle: hasError
+          ? '${failed.join(', ')}: Fehler'
+          : detailRadiusText(radius),
+      subtitleColor: hasError ? SonarColors.red : null,
+      page: (_) => const DataScreen(),
+    );
+  }
+}
+
+/// Kopf einer Gruppe. Grau statt Amber: Amber heißt im Cockpit „Vorwarnung“ und bleibt hier
+/// den Bedienelementen.
 class SectionHeader extends StatelessWidget {
   const SectionHeader(this.title, {super.key});
 
@@ -173,64 +170,12 @@ class SectionHeader extends StatelessWidget {
       header: true,
       child: Text(
         title,
-        style: SonarText.label.copyWith(color: SonarColors.amber),
+        style: const TextStyle(
+          fontSize: 14,
+          fontWeight: FontWeight.w600,
+          color: SonarColors.textMuted,
+        ),
       ),
     ),
   );
-}
-
-class _About extends ConsumerWidget {
-  const _About();
-
-  @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final version =
-        ref.watch(appVersionProvider).value ?? appVersionFallbackLabel;
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.stretch,
-      children: [
-        Padding(
-          padding: const EdgeInsets.symmetric(horizontal: SonarSpace.l),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text('Sonarb · $version', style: SonarText.label),
-              const SizedBox(height: SonarSpace.s),
-              const Text(
-                'Blitzer, Ampeln und Tempolimits stammen aus OpenStreetMap. '
-                'Daten © OpenStreetMap-Mitwirkende, Lizenz Open Database License (ODbL) 1.0, '
-                'openstreetmap.org/copyright. Kartenbilder: OpenStreetMap-Tile-Server.',
-                style: SonarText.small,
-              ),
-              const SizedBox(height: SonarSpace.m),
-              const Text(stvoNotice, style: SonarText.small),
-            ],
-          ),
-        ),
-        const SizedBox(height: SonarSpace.s),
-        ListTile(
-          leading: const Icon(Icons.privacy_tip_outlined),
-          title: const Text('Datenschutz'),
-          subtitle: const Text(
-            'Was die App speichert und wohin sie Daten schickt',
-          ),
-          trailing: const Icon(Icons.chevron_right),
-          onTap: () => Navigator.of(context).push<void>(
-            MaterialPageRoute(builder: (_) => const PrivacyScreen()),
-          ),
-        ),
-        ListTile(
-          leading: const Icon(Icons.description_outlined),
-          title: const Text('Lizenzen'),
-          subtitle: const Text('Kartendaten und verwendete Pakete'),
-          trailing: const Icon(Icons.chevron_right),
-          onTap: () => showLicensePage(
-            context: context,
-            applicationName: 'Sonarb',
-            applicationVersion: version,
-          ),
-        ),
-      ],
-    );
-  }
 }

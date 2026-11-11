@@ -4,7 +4,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:sonarb/app/app_settings.dart';
 import 'package:sonarb/app/theme.dart';
 import 'package:sonarb/core/contracts/alert_audio.dart';
-import 'package:sonarb/features/settings/announcements_screen.dart';
+import 'package:sonarb/features/settings/warning_section.dart';
 
 import '../cockpit/fakes.dart';
 
@@ -24,7 +24,7 @@ void main() {
         overrides: rig.overrides,
         child: MaterialApp(
           theme: buildSonarTheme(),
-          home: const AnnouncementsScreen(),
+          home: const WarningScreen(),
         ),
       ),
     );
@@ -124,7 +124,7 @@ void main() {
   );
 
   testWidgets(
-    'Auswahl unter „Sprachansagen“: wählen, speichern, an den Ton geben',
+    'Auswahl unter „Warnungen“: wählen, speichern, an den Ton geben',
     (tester) async {
       await pump(tester);
       await choose(tester, 'Ansage');

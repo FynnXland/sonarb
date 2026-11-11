@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../features/settings/enforcement_tile.dart';
 import 'legal.dart';
 import 'privacy_screen.dart';
 import 'services.dart';
@@ -86,6 +87,13 @@ class WelcomeScreen extends ConsumerWidget {
                   title: 'Straßenverkehrsordnung',
                   text: stvoNotice,
                 ),
+                // Angebot, kein Zwang: Standard bleibt an, wie bisher.
+                const EnforcementTile(
+                  notice: false,
+                  subtitle: welcomeEnforcementLine,
+                  contentPadding: EdgeInsets.zero,
+                ),
+                const SizedBox(height: SonarSpace.s),
                 Align(
                   alignment: Alignment.centerLeft,
                   child: TextButton(
@@ -98,10 +106,11 @@ class WelcomeScreen extends ConsumerWidget {
               ],
             ),
           ),
+          // Abstand nach oben: sonst klebt der letzte Listeneintrag am Knopf.
           Padding(
             padding: const EdgeInsets.fromLTRB(
               SonarSpace.xl,
-              0,
+              SonarSpace.m,
               SonarSpace.xl,
               SonarSpace.l,
             ),
@@ -159,3 +168,7 @@ class _Point extends StatelessWidget {
     ),
   );
 }
+
+/// Unterzeile des Schalters „Blitzer-Funktionen“ auf dem Startbildschirm.
+const welcomeEnforcementLine =
+    'Lässt sich jederzeit in den Einstellungen ändern.';

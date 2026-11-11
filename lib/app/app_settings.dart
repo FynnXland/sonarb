@@ -29,6 +29,7 @@ class AppSettings {
     this.detailRadiusMeters = 5000,
     this.countryCameras = false,
     this.mapsNavigation = false,
+    this.enforcementFeatures = true,
   });
 
   /// Erste Ansage mindestens so weit vorher ([WarningSettings.announceMeters]).
@@ -74,6 +75,12 @@ class AppSettings {
   /// Navigationsmitteilung von Google Maps mitlesen. Standard aus; braucht die Freigabe in Android.
   final bool mapsNavigation;
 
+  /// Blitzer-Funktionen: alles, was Verkehrsüberwachung anzeigt oder meldet (Blitzer,
+  /// Abstandsmessungen, Kontrollen, Blitzer-Hotspots und -Verlauf; siehe
+  /// `core/model/enforcement.dart`). Aus: weder auf der Karte noch in Warnung, Ansage, Ton oder
+  /// im Melden-Blatt. Tempo, Tempolimit, Baustellen und Gefahren bleiben.
+  final bool enforcementFeatures;
+
   /// Wählbare Umkreise in Metern.
   static const detailRadiusChoices = <double>[5000, 10000, 25000, 50000];
 
@@ -95,6 +102,7 @@ class AppSettings {
   static const _kDetailRadius = 'settings.detailRadiusMeters';
   static const _kCountryCameras = 'settings.countryCameras';
   static const _kMapsNavigation = 'settings.mapsNavigation';
+  static const _kEnforcement = 'settings.enforcementFeatures';
 
   static AppSettings load(SharedPreferences p) {
     const d = AppSettings();
@@ -127,6 +135,7 @@ class AppSettings {
       ),
       countryCameras: p.getBool(_kCountryCameras) ?? d.countryCameras,
       mapsNavigation: p.getBool(_kMapsNavigation) ?? d.mapsNavigation,
+      enforcementFeatures: p.getBool(_kEnforcement) ?? d.enforcementFeatures,
     );
   }
 
@@ -148,6 +157,7 @@ class AppSettings {
     await p.setDouble(_kDetailRadius, detailRadiusMeters);
     await p.setBool(_kCountryCameras, countryCameras);
     await p.setBool(_kMapsNavigation, mapsNavigation);
+    await p.setBool(_kEnforcement, enforcementFeatures);
   }
 
   /// Wählbare Abstände der ersten Ansage in Metern.
@@ -184,15 +194,35 @@ class AppSettings {
   }
 
   /// Abgeschaltete Sätze für die Tonausgabe: der Hotspot-Satz nur bei [HeatSpotAlert.speech].
+  /// Ohne Blitzer-Funktionen schweigen auch alle Sätze dazu. Deren Punkte erreichen die
+  /// Warnlogik dann gar nicht erst; so bleibt es aber auch bei einem Fehler still.
   Set<Announcement> get audioSilenced => {
     ...silenced.where((a) => a != Announcement.heatSpot),
     if (heatSpotAlert != HeatSpotAlert.speech) Announcement.heatSpot,
+    if (!enforcementFeatures) ...enforcementAnnouncements,
   };
 
-  /// Ladegebiet für die Datenquellen.
+  /// Sätze, die nur Blitzer und Kontrollen betreffen, dazu der Datenstatus, weil er
+  /// „Blitzerdaten“ ansagt. Der Tempo-Zusatz ([Announcement.speedLimit]) gehört nicht dazu: Er
+  /// kann auch hinter Baustellen und Gefahren stehen, und Blitzer erreichen die Warnlogik bei
+  /// „aus“ ohnehin nicht.
+  static const enforcementAnnouncements = {
+    Announcement.fixedCamera,
+    Announcement.redLightCamera,
+    Announcement.sectionControl,
+    Announcement.sectionEnd,
+    Announcement.mobileCamera,
+    Announcement.distanceCheck,
+    Announcement.otherControls,
+    Announcement.dataUnavailable,
+    Announcement.dataRestored,
+    Announcement.heatSpot,
+  };
+
+  /// Ladegebiet für die Datenquellen. Ohne Blitzer-Funktionen keine Blitzer für ganz Deutschland.
   DataScope get dataScope => DataScope(
     detailRadiusMeters: detailRadiusMeters,
-    countryCameras: countryCameras,
+    countryCameras: countryCameras && enforcementFeatures,
   );
 
   /// Überträgt die Werte auf Warnlogik, Ton und Datenquellen. Übrige Engine-Werte bleiben.
@@ -201,7 +231,8 @@ class AppSettings {
     final e = s.engine.settings;
     s.engine.settings = e.copyWith(
       hotspotsEnabled: hotspotsEnabled,
-      heatSpotsEnabled: heatSpotAlert != HeatSpotAlert.off,
+      heatSpotsEnabled:
+          heatSpotAlert != HeatSpotAlert.off && enforcementFeatures,
       heatSpotMinReports: heatSpotMinReports,
       overspeedToleranceKmh: overspeedToleranceKmh,
       announceMeters: announceMeters,
@@ -235,6 +266,7 @@ class AppSettings {
     double? detailRadiusMeters,
     bool? countryCameras,
     bool? mapsNavigation,
+    bool? enforcementFeatures,
   }) => AppSettings(
     announceMeters: announceMeters ?? this.announceMeters,
     reminderEnabled: reminderEnabled ?? this.reminderEnabled,
@@ -253,6 +285,7 @@ class AppSettings {
     detailRadiusMeters: detailRadiusMeters ?? this.detailRadiusMeters,
     countryCameras: countryCameras ?? this.countryCameras,
     mapsNavigation: mapsNavigation ?? this.mapsNavigation,
+    enforcementFeatures: enforcementFeatures ?? this.enforcementFeatures,
   );
 
   /// Schaltet [a] an ([on] = true) oder ab.

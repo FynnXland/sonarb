@@ -3,6 +3,7 @@ import 'dart:ui' as ui;
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:sonarb/app/app_settings.dart';
 import 'package:sonarb/app/map_layer_settings.dart';
 import 'package:sonarb/app/theme.dart';
 import 'package:sonarb/features/cockpit/layer_symbol.dart';
@@ -55,15 +56,38 @@ void main() {
     return ProviderScope.containerOf(tester.element(find.byWidget(home)));
   }
 
-  testWidgets('sechs Schalter untereinander, je mit Kartensymbol', (
+  testWidgets('Neigen oben, darunter sechs Ebenen, je mit Kartensymbol', (
     tester,
   ) async {
     await pump(tester, const MapLayersScreen(symbol: _symbol));
-    final ys = [for (final l in _labels) tester.getCenter(find.text(l)).dy];
+    tester.view.physicalSize = const Size(360, 1400);
+    await tester.pumpAndSettle();
+    final ys = [
+      tester.getCenter(find.text('Karte bei Fahrt neigen')).dy,
+      for (final l in _labels) tester.getCenter(find.text(l)).dy,
+    ];
     expect(ys, [...ys]..sort());
-    expect(find.byType(SwitchListTile), findsNWidgets(6));
+    expect(find.byType(SwitchListTile), findsNWidgets(7));
     expect(find.byType(LayerSymbol), findsNWidgets(6));
     expect(tester.takeException(), isNull);
+  });
+
+  testWidgets('ohne Blitzer-Funktionen fehlen die Blitzer-Ebenen', (
+    tester,
+  ) async {
+    await rig.prefs.setBool('settings.enforcementFeatures', false);
+    await pump(tester, const MapLayersScreen(symbol: _symbol));
+    tester.view.physicalSize = const Size(360, 1400);
+    await tester.pumpAndSettle();
+    expect(find.text('Blitzer'), findsNothing);
+    expect(find.text('Mobile Blitzer'), findsNothing);
+    expect(find.text('Baustellen'), findsOneWidget);
+    expect(find.byType(LayerSymbol), findsNWidgets(4));
+    expect(
+      mapLayersSummary(defaultMapLayers, enforcement: false),
+      'Baustellen, Gefahrenstellen, Umkreis',
+      reason: 'ohne die Blitzer-Ebenen',
+    );
   });
 
   testWidgets('Schalter ändern nur die Karte und werden gespeichert', (
@@ -75,6 +99,8 @@ void main() {
     );
     expect(container.read(mapLayersProvider), defaultMapLayers);
 
+    await tester.ensureVisible(find.text('Baustellen'));
+    await tester.pumpAndSettle();
     await tester.tap(find.text('Baustellen'));
     await tester.pump();
     expect(
@@ -83,6 +109,8 @@ void main() {
     );
     expect(rig.prefs.getBool('map.layer.construction'), isFalse);
 
+    await tester.ensureVisible(find.text('Ampeln'));
+    await tester.pumpAndSettle();
     await tester.tap(find.text('Ampeln'));
     await tester.pump();
     expect(container.read(mapLayersProvider), contains(MapLayer.signals));
@@ -124,6 +152,8 @@ void main() {
   ) async {
     await pump(tester, const MapLayersScreen(symbol: _symbol), textScale: 2);
     expect(tester.takeException(), isNull);
+    await tester.scrollUntilVisible(find.text('Mobile Blitzer'), 100);
+    expect(tester.takeException(), isNull);
     final row = tester.getSize(
       find.widgetWithText(SwitchListTile, 'Mobile Blitzer'),
     );
@@ -139,25 +169,41 @@ void main() {
     );
   });
 
-  testWidgets('Einstellungen: Kartenebenen öffnen und Neigung abschalten', (
+  test('Kurzfassung auf der Übersicht', () {
+    const s = AppSettings();
+    expect(mapSummary(defaultMapLayers, s), '5 von 6 Ebenen · neigt bei Fahrt');
+    expect(
+      mapSummary(MapLayer.values.toSet(), s.copyWith(tiltWhileDriving: false)),
+      'Alle Ebenen · flach',
+    );
+    expect(
+      mapSummary(defaultMapLayers, s.copyWith(enforcementFeatures: false)),
+      '3 von 4 Ebenen · neigt bei Fahrt',
+    );
+  });
+
+  testWidgets('Einstellungen: Karte öffnen und Neigung abschalten', (
     tester,
   ) async {
     await pump(tester, const SettingsScreen(mapLayerSymbol: _symbol));
-    await tester.scrollUntilVisible(find.text('Kartenebenen'), 100);
-    await tester.tap(find.text('Kartenebenen'));
+    expect(find.text('5 von 6 Ebenen · neigt bei Fahrt'), findsOneWidget);
+    await tester.tap(find.text('Karte'));
     await tester.pumpAndSettle();
     expect(find.byType(MapLayersScreen), findsOneWidget);
-    expect(find.byType(LayerSymbol), findsNWidgets(6));
-    await tester.pageBack();
-    await tester.pumpAndSettle();
-
-    await tester.scrollUntilVisible(find.text('Karte bei Fahrt neigen'), 100);
+    await tester.scrollUntilVisible(find.text('Umkreis'), 100);
+    expect(find.byType(LayerSymbol), findsWidgets);
+    await tester.scrollUntilVisible(find.text('Karte bei Fahrt neigen'), -100);
     final tilt = tester.widget<SwitchListTile>(
       find.widgetWithText(SwitchListTile, 'Karte bei Fahrt neigen'),
     );
     expect(tilt.value, isTrue, reason: 'an als Standard');
+    await tester.ensureVisible(find.text('Karte bei Fahrt neigen'));
+    await tester.pumpAndSettle();
     await tester.tap(find.text('Karte bei Fahrt neigen'));
     await tester.pumpAndSettle();
     expect(rig.prefs.getBool('settings.tiltWhileDriving'), isFalse);
+    await tester.pageBack();
+    await tester.pumpAndSettle();
+    expect(find.text('5 von 6 Ebenen · flach'), findsOneWidget);
   });
 }

@@ -92,6 +92,8 @@ weitere sind kostenpflichtig oder an Schlüssel gebunden.
   dann 60 s Pause, Zweitserver tot, Frist 75 s): Hauptserver bis 100 s überlastet 272 → 169 s; Hauptserver bis 400 s
   still, aber eine andere Schicht hat zuvor geantwortet 693 → 543 s. Keine Wirkung, wenn vorher noch gar kein
   Endpunkt geantwortet hat (beide still: 211 und 693 s bleiben), und bei dauerhafter Überlast des Hauptservers.
+  Am 11.11.2026 erneut gemessen: `overpass.private.coffee` blieb 90 s still, `overpass-api.de` lieferte nach 42 s. Darum
+  bleibt FOSSGIS vorn, obwohl seine Regeln breite Apps nicht vorsehen; der User-Agent nennt Projekt und Kontakt.
 - **Teilergebnisse:** `load` wartet höchstens 150 s auf die Blitzer, danach noch 8 s auf Ampeln und Tempolimits.
   Was bis dahin fehlt, lädt im Hintergrund weiter; `speedLimitAt` nutzt es sofort, der nächste `load` liefert es.
   Laden Ampeln und Tempolimits nur noch nach, steht das als Hinweis in `SourceResult.notice`: „Ampeln und

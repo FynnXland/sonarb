@@ -29,13 +29,8 @@ void main() {
       ),
     );
     await tester.pumpAndSettle();
-    // Die Ausroll-Piepe liegen unter „Mehr“.
-    await tester.ensureVisible(find.text('Mehr'));
-    await tester.pumpAndSettle();
-    await tester.tap(find.text('Mehr'));
-    await tester.pumpAndSettle();
-    // Zurück nach oben, damit die Regler der Tests im Bild liegen.
-    await tester.drag(find.byType(ListView), const Offset(0, 3000));
+    // Von der Übersicht auf die Seite „Warnungen“.
+    await tester.tap(find.text('Warnungen'));
     await tester.pumpAndSettle();
   }
 
@@ -47,25 +42,30 @@ void main() {
     (tester) async {
       await pump(tester);
       expect(
-        find.textContaining('Vor jeder Messstelle kommt eine Ansage mit Piep'),
+        find.text(
+          'Mindestens 600 m vor jeder Messstelle kommt eine Ansage mit '
+          'Signalton. Weitere Signaltöne nur, wenn du zu schnell bist.',
+        ),
         findsOneWidget,
       );
       expect(
-        find.text('600 m vor der Messstelle, bei schneller Fahrt 30 s'),
+        find.text('600 m vorher, bei schneller Fahrt 30 s'),
         findsOneWidget,
       );
       expect(
-        find.text('250 m vor der Messstelle, bei schneller Fahrt früher'),
+        find.text('250 m vorher, bei schneller Fahrt früher'),
         findsOneWidget,
       );
       final only = tester.widget<SwitchListTile>(
         find.widgetWithText(
           SwitchListTile,
-          'Piepen nur, wenn ich zu schnell bin',
+          'Signalton nur, wenn ich zu schnell bin',
         ),
       );
       expect(only.value, isTrue);
       expect(find.text('Vorwarnzeit'), findsNothing);
+      // Kein Aufklappen mehr: alles steht offen auf der Seite.
+      expect(find.byType(ExpansionTile), findsNothing);
     },
   );
 
@@ -85,7 +85,7 @@ void main() {
     await tester.pumpAndSettle();
     expect(rig.engine.settings.announceMeters, 5000);
     expect(rig.prefs.getDouble('settings.announceMeters'), 5000);
-    expect(find.textContaining('5 km vor der Messstelle'), findsOneWidget);
+    expect(find.text('5 km vorher, bei schneller Fahrt 30 s'), findsOneWidget);
   });
 
   testWidgets(
@@ -93,17 +93,17 @@ void main() {
     (tester) async {
       await pump(tester);
       await tester.ensureVisible(
-        find.widgetWithText(SwitchListTile, 'Piepe zum Ausrollen'),
+        find.widgetWithText(SwitchListTile, 'Signalton zum Ausrollen'),
       );
       await tester.pumpAndSettle();
       await tester.tap(
-        find.widgetWithText(SwitchListTile, 'Piepe zum Ausrollen'),
+        find.widgetWithText(SwitchListTile, 'Signalton zum Ausrollen'),
       );
       await tester.pumpAndSettle();
       expect(rig.engine.settings.reminderEnabled, isFalse);
       expect(rig.prefs.getBool('settings.reminderEnabled'), isFalse);
       expect(
-        find.widgetWithText(ChoiceSliderTile, 'Piepe zum Ausrollen frühestens'),
+        find.widgetWithText(ChoiceSliderTile, 'Ausrollen frühestens'),
         findsNothing,
       );
     },
@@ -116,25 +116,59 @@ void main() {
     await tester.ensureVisible(
       find.widgetWithText(
         SwitchListTile,
-        'Piepen nur, wenn ich zu schnell bin',
+        'Signalton nur, wenn ich zu schnell bin',
       ),
     );
     await tester.pumpAndSettle();
     await tester.tap(
       find.widgetWithText(
         SwitchListTile,
-        'Piepen nur, wenn ich zu schnell bin',
+        'Signalton nur, wenn ich zu schnell bin',
       ),
     );
     await tester.pumpAndSettle();
     expect(rig.engine.settings.onlyWhenSpeeding, isFalse);
     expect(rig.prefs.getBool('settings.onlyWhenSpeeding'), isFalse);
-    expect(find.text('Die Piepe kommen bei jedem Tempo'), findsOneWidget);
+    expect(find.text('Die Signaltöne kommen bei jedem Tempo'), findsOneWidget);
+    await tester.drag(find.byType(ListView), const Offset(0, 2000));
+    await tester.pumpAndSettle();
+    expect(
+      find.textContaining('danach Signaltöne bei jedem Tempo'),
+      findsOneWidget,
+    );
   });
+
+  testWidgets(
+    'ohne Blitzer-Funktionen: nur, was Baustellen und Gefahren betrifft',
+    (tester) async {
+      await rig.prefs.setBool('settings.enforcementFeatures', false);
+      await pump(tester);
+      expect(
+        find.text(
+          'Mindestens 600 m vor Baustellen und Gefahren kommt eine Ansage mit '
+          'Signalton. Die Blitzer-Funktionen sind aus.',
+        ),
+        findsOneWidget,
+      );
+      expect(
+        find.widgetWithText(ChoiceSliderTile, 'Ansage ab'),
+        findsOneWidget,
+      );
+      expect(find.text('Vor eigenen Meldungen warnen'), findsOneWidget);
+      for (final gone in const [
+        'Signalton nur, wenn ich zu schnell bin',
+        'Signalton zum Ausrollen',
+        'Ausrollen frühestens',
+        'Blitzer-Hotspots',
+      ]) {
+        expect(find.text(gone), findsNothing, reason: gone);
+      }
+    },
+  );
 
   testWidgets('Erinnerungsabstand wird weitergegeben', (tester) async {
     await pump(tester);
-    slider(tester, 'Piepe zum Ausrollen frühestens').onChanged(500);
+    slider(tester, 'Ausrollen frühestens').onChanged(500);
     await tester.pumpAndSettle();
     expect(rig.engine.settings.reminderMeters, 500);
     expect(rig.prefs.getDouble('settings.reminderMeters'), 500);

@@ -66,7 +66,7 @@ class _EditSheetState extends State<_EditSheet> {
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            Text('Hotspot bearbeiten', style: SonarText.warningKind),
+            Text('Meldung bearbeiten', style: SonarText.warningKind),
             const SizedBox(height: SonarSpace.m),
             const Text('Art', style: SonarText.label),
             const SizedBox(height: SonarSpace.xs),

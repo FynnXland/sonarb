@@ -12,6 +12,13 @@ String distanceText(double meters) {
   return '$text km';
 }
 
+/// Unterzeile wie bei einer Listenzeile (Material 3: 14 sp, grau).
+const settingsSubtitle = TextStyle(
+  fontSize: 14,
+  height: 1.35,
+  color: SonarColors.textMuted,
+);
+
 /// Kurzer Erklärtext über einer Gruppe von Einstellungen.
 class SettingsExplainer extends StatelessWidget {
   const SettingsExplainer(this.text, {super.key});
@@ -26,7 +33,52 @@ class SettingsExplainer extends StatelessWidget {
       SonarSpace.l,
       SonarSpace.s,
     ),
-    child: Text(text, style: SonarText.small),
+    child: Text(text, style: settingsSubtitle),
+  );
+}
+
+/// Titel, Wert in Worten und Regler darunter. Der Titel steht wie bei einem Schalter (16 sp,
+/// normal), die Bahn beginnt an derselben Kante wie der Text, und TalkBack liest den Titel mit.
+class _SliderTile extends StatelessWidget {
+  const _SliderTile({
+    required this.title,
+    required this.valueText,
+    required this.slider,
+  });
+
+  final String title;
+  final String valueText;
+  final Widget slider;
+
+  @override
+  Widget build(BuildContext context) => Padding(
+    padding: const EdgeInsets.fromLTRB(
+      SonarSpace.l,
+      SonarSpace.s,
+      SonarSpace.l,
+      0,
+    ),
+    child: Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        ExcludeSemantics(
+          child: Text(title, style: Theme.of(context).textTheme.bodyLarge),
+        ),
+        ExcludeSemantics(child: Text(valueText, style: settingsSubtitle)),
+        SliderTheme(
+          data: SliderTheme.of(context).copyWith(
+            // Leere Strecke mit 3:1 gegen den Hintergrund statt kaum sichtbar.
+            inactiveTrackColor: SonarColors.outline,
+            inactiveTickMarkColor: SonarColors.textMuted,
+            // Knopf (20 dp) bündig mit dem Text darüber, Höhe 48 dp zum Tippen.
+            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 14),
+          ),
+          child: MergeSemantics(
+            child: Semantics(label: title, child: slider),
+          ),
+        ),
+      ],
+    ),
   );
 }
 
@@ -57,30 +109,19 @@ class ChoiceSliderTile extends StatelessWidget {
   }
 
   @override
-  Widget build(BuildContext context) => Padding(
-    padding: const EdgeInsets.fromLTRB(
-      SonarSpace.l,
-      SonarSpace.s,
-      SonarSpace.l,
-      0,
-    ),
-    child: Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(title, style: SonarText.label),
-        Text(valueText, style: SonarText.small),
-        Slider(
-          value: _index.toDouble(),
-          max: (choices.length - 1).toDouble(),
-          divisions: choices.length - 1,
-          label: distanceText(choices[_index]),
-          semanticFormatterCallback: (_) => valueText,
-          onChanged: (v) {
-            final next = choices[v.round()];
-            if (next != value) onChanged(next);
-          },
-        ),
-      ],
+  Widget build(BuildContext context) => _SliderTile(
+    title: title,
+    valueText: valueText,
+    slider: Slider(
+      value: _index.toDouble(),
+      max: (choices.length - 1).toDouble(),
+      divisions: choices.length - 1,
+      label: distanceText(choices[_index]),
+      semanticFormatterCallback: (_) => valueText,
+      onChanged: (v) {
+        final next = choices[v.round()];
+        if (next != value) onChanged(next);
+      },
     ),
   );
 }
@@ -107,28 +148,88 @@ class ValueSliderTile extends StatelessWidget {
   final ValueChanged<double> onChanged;
 
   @override
-  Widget build(BuildContext context) => Padding(
-    padding: const EdgeInsets.fromLTRB(
-      SonarSpace.l,
-      SonarSpace.s,
-      SonarSpace.l,
-      0,
+  Widget build(BuildContext context) => _SliderTile(
+    title: title,
+    valueText: valueText,
+    slider: Slider(
+      value: value,
+      min: min,
+      max: max,
+      divisions: divisions,
+      label: valueText,
+      semanticFormatterCallback: (_) => valueText,
+      onChanged: onChanged,
     ),
-    child: Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(title, style: SonarText.label),
-        Text(valueText, style: SonarText.small),
-        Slider(
-          value: value,
-          min: min,
-          max: max,
-          divisions: divisions,
-          label: valueText,
-          semanticFormatterCallback: (_) => valueText,
-          onChanged: onChanged,
+  );
+}
+
+/// Zeile, die eine Unterseite öffnet. Auf der Übersicht mit Symbol, auf Unterseiten ohne.
+class SettingsLinkTile extends StatelessWidget {
+  const SettingsLinkTile({
+    super.key,
+    required this.title,
+    required this.subtitle,
+    required this.page,
+    this.icon,
+    this.subtitleColor,
+  });
+
+  final String title;
+  final String subtitle;
+  final WidgetBuilder page;
+  final IconData? icon;
+
+  /// Für eine Störung, etwa eine Quelle mit Fehler.
+  final Color? subtitleColor;
+
+  @override
+  Widget build(BuildContext context) => ListTile(
+    leading: icon == null ? null : Icon(icon),
+    title: Text(title),
+    subtitle: Text(
+      subtitle,
+      style: subtitleColor == null ? null : TextStyle(color: subtitleColor),
+    ),
+    trailing: const Icon(Icons.chevron_right),
+    onTap: () =>
+        Navigator.of(context).push<void>(MaterialPageRoute(builder: page)),
+  );
+}
+
+/// Zeile mit Erklärung und einem Knopf darunter statt rechts daneben: Bei großer Schrift bleibt
+/// so der Titel lesbar.
+class SettingsActionTile extends StatelessWidget {
+  const SettingsActionTile({
+    super.key,
+    required this.title,
+    required this.subtitle,
+    required this.action,
+    required this.onPressed,
+    this.icon,
+  });
+
+  final String title;
+  final String subtitle;
+  final String action;
+  final VoidCallback? onPressed;
+  final IconData? icon;
+
+  @override
+  Widget build(BuildContext context) => Column(
+    crossAxisAlignment: CrossAxisAlignment.start,
+    children: [
+      ListTile(
+        leading: icon == null ? null : Icon(icon),
+        title: Text(title),
+        subtitle: Text(subtitle),
+      ),
+      Padding(
+        padding: EdgeInsets.only(
+          left: icon == null ? SonarSpace.s : 48,
+          bottom: SonarSpace.xs,
         ),
-      ],
-    ),
+        child: TextButton(onPressed: onPressed, child: Text(action)),
+      ),
+    ],
   );
 }

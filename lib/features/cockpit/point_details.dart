@@ -81,7 +81,7 @@ class PointDetails extends ConsumerWidget {
                   onClose();
                 },
               ),
-            const _Hint('Bearbeiten unter Einstellungen, Hotspots verwalten.'),
+            const _Hint('Bearbeiten unter Einstellungen, Eigene Meldungen.'),
           ],
           _SectionTitle(sources.length == 1 ? 'Quelle' : 'Quellen'),
           for (final s in sources) _SourceTile(s),

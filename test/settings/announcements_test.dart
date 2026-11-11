@@ -33,10 +33,10 @@ void main() {
 
   testWidgets('Einstieg aus den Einstellungen', (tester) async {
     await pump(tester, const SettingsScreen());
-    await tester.scrollUntilVisible(find.text('Sprachansagen'), 100);
-    expect(find.text('An, alle Sätze'), findsOneWidget);
-    await tester.ensureVisible(find.text('Sprachansagen'));
+    expect(find.text('100 % · Sprachansagen an'), findsOneWidget);
+    await tester.tap(find.text('Ton und Sprache'));
     await tester.pumpAndSettle();
+    expect(find.text('An, alle Sätze'), findsOneWidget);
     await tester.tap(find.text('Sprachansagen'));
     await tester.pumpAndSettle();
     expect(find.byType(AnnouncementsScreen), findsOneWidget);
@@ -109,6 +109,62 @@ void main() {
     await tester.tap(find.byTooltip('Tempo-Zusatz anhören'));
     await tester.pump();
     expect(rig.audio.previews, [Announcement.speedLimit]);
+  });
+
+  testWidgets(
+    'ohne Blitzer-Funktionen: keine Blitzer-Sätze, Baustelle bleibt',
+    (tester) async {
+      await rig.prefs.setBool('settings.enforcementFeatures', false);
+      await pump(tester, const AnnouncementsScreen());
+      final listed = [
+        for (final (_, items) in announcementGroupsFor(enforcement: false))
+          ...items,
+      ];
+      expect(listed, isNot(contains(Announcement.fixedCamera)));
+      expect(listed, isNot(contains(Announcement.distanceCheck)));
+      expect(listed, contains(Announcement.construction));
+      expect(listed, contains(Announcement.speedLimit));
+      expect(find.text('Blitzer'), findsNothing);
+      expect(row('Fester Blitzer voraus'), findsNothing);
+      await tester.scrollUntilVisible(row('Baustelle voraus'), 100);
+      expect(row('Baustelle voraus'), findsOneWidget);
+    },
+  );
+
+  testWidgets('große Schrift: „Anhören“ unter der Zeile, ohne Überlauf', (
+    tester,
+  ) async {
+    tester.view.physicalSize = const Size(360, 640);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.reset);
+    await tester.pumpWidget(
+      ProviderScope(
+        overrides: rig.overrides,
+        child: MaterialApp(
+          theme: buildSonarTheme(),
+          builder: (context, child) => MediaQuery(
+            data: MediaQuery.of(context)
+                .copyWith(textScaler: const TextScaler.linear(2)),
+            child: child!,
+          ),
+          home: const AnnouncementsScreen(),
+        ),
+      ),
+    );
+    await tester.pumpAndSettle();
+    final listen = find.ancestor(
+      of: find.text('Anhören'),
+      matching: find.bySubtype<ButtonStyleButton>(),
+    );
+    await tester.scrollUntilVisible(find.text('Anhören'), 100);
+    expect(tester.takeException(), isNull);
+    expect(find.byType(IconButton), findsNothing);
+    expect(tester.getSize(listen.first).height, greaterThanOrEqualTo(48));
+    await tester.ensureVisible(find.byTooltip('Fester Blitzer voraus anhören'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.byTooltip('Fester Blitzer voraus anhören'));
+    await tester.pump();
+    expect(rig.audio.previews, [Announcement.fixedCamera]);
   });
 
   test('unbekannte gespeicherte Namen werden übergangen', () async {

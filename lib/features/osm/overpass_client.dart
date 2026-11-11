@@ -14,9 +14,11 @@ import 'osm_parser.dart';
 import 'osm_tile.dart';
 
 /// Nur ASCII: `dart:io` lehnt andere Zeichen in Kopfzeilen ab (FormatException), dann scheitert
-/// jede Anfrage schon vor dem Senden.
+/// jede Anfrage schon vor dem Senden. Projektname und Kontakt verlangen die Nutzungsregeln von
+/// private.coffee; die Adresse steht ohnehin öffentlich in der App (`legal.dart`).
 const String overpassUserAgent =
-    'Sonarb/1.0 (driver assistance app for Android; de.fynn.handy.sonarb)';
+    'Sonarb/1.0 (driver assistance app for Android; de.fynn.handy.sonarb; '
+    '+https://fynn.land/sonarb/; kontakt@fynnland.xyz)';
 
 /// Öffentliche Instanzen laut OSM-Wiki (Stand 2026): die FOSSGIS-Hauptinstanz und Private.coffee
 /// (vormals overpass.kumi.systems).

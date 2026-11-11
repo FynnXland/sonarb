@@ -16,7 +16,6 @@ class LimitPackagesTile extends ConsumerWidget {
     final state = ref.watch(limitPackagesProvider);
     final land = ref.watch(currentLandProvider);
     return ListTile(
-      leading: const Icon(Icons.speed_outlined),
       title: const Text('Tempolimits ohne Netz'),
       subtitle: Text(limitPackagesSummary(state, land)),
       trailing: const Icon(Icons.chevron_right),

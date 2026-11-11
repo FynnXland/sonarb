@@ -15,9 +15,8 @@ String detailRadiusText(double meters) =>
 /// Datenmenge“): Ampeln und Tempolimits laden fest bis 3 km und machen fast alles aus, Blitzer
 /// und Baustellen im Umkreis sind klein. Deshalb ein Hinweis für alle Umkreise.
 const detailRadiusDataHint =
-    'Neue Strecken: rund 0,4 MB pro Stunde auf der Autobahn, 1,5 MB in der Stadt, '
-    'bis 4 MB in dichten Großstädten. Bekannte Strecken kosten fast nichts. '
-    'Ein größerer Umkreis lädt nur mehr Blitzer und Baustellen.';
+    'Neue Strecken kosten 0,4 MB pro Stunde auf der Autobahn und bis 4 MB in '
+    'Großstädten, bekannte fast nichts.';
 
 /// Was der Schalter tut, steht immer da; bei an kommt der Stand der OSM-Quelle dazu.
 const countryCamerasHint = 'Zeigt beim Herauszoomen alle festen Blitzer';
@@ -66,14 +65,16 @@ class DataScopeTiles extends ConsumerWidget {
               ctrl.change((x) => x.copyWith(detailRadiusMeters: v)),
         ),
         const SettingsExplainer(detailRadiusDataHint),
-        SwitchListTile(
-          title: const Text('Blitzer für ganz Deutschland'),
-          subtitle: Text(
-            countryCamerasText(on: s.countryCameras, sources: sources),
+        // Ohne Blitzer-Funktionen lädt die App keine Deutschland-Blitzer (AppSettings.dataScope).
+        if (s.enforcementFeatures)
+          SwitchListTile(
+            title: const Text('Blitzer für ganz Deutschland'),
+            subtitle: Text(
+              countryCamerasText(on: s.countryCameras, sources: sources),
+            ),
+            value: s.countryCameras,
+            onChanged: (v) => ctrl.change((x) => x.copyWith(countryCameras: v)),
           ),
-          value: s.countryCameras,
-          onChanged: (v) => ctrl.change((x) => x.copyWith(countryCameras: v)),
-        ),
       ],
     );
   }
